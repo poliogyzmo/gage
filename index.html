@@ -4,56 +4,113 @@
   <meta charset="UTF-8">
   <title>🎲 Jeu + Admin Gages</title>
   <style>
+    /* ===== Global ===== */
     body {
       font-family: "Segoe UI", sans-serif;
-      background: #fafafa;
-      color: #333;
+      background-color: #000;
+      color: #fff;
       padding: 20px;
     }
+
     h1 { text-align: center; }
-    .tabs { display: flex; justify-content: center; gap: 20px; margin-bottom: 20px; cursor: pointer; }
-    .tab { padding: 10px 20px; border-radius: 8px; background: #ddd; transition: background 0.3s; }
-    .tab.active { background: #4CAF50; color: white; }
-    .section { display: none; max-width: 900px; margin: auto; }
+
+    /* ===== Tabs ===== */
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+    .tab {
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #ddd;
+      color: #000;
+      transition: background 0.3s;
+    }
+    .tab.active {
+      background: #4CAF50;
+      color: white;
+    }
+    .section {
+      display: none;
+      max-width: 900px;
+      margin: auto;
+    }
     .section.active { display: block; }
 
-    /* Jeu */
-    .filters { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px; }
-    select { padding: 6px 10px; border-radius: 6px; border: 1px solid #ccc; background: white; }
-    button { padding: 8px 16px; border-radius: 8px; border: none; background: #4CAF50; color: white; cursor: pointer; transition: 0.3s; }
-    button:hover { background: #3a9c42; }
-    #texte { margin-top: 20px; font-size: 1.3em; font-weight: bold; text-align:center; }
- 
-   /* ===== GIF responsive et grand ===== */
-#gif {
-  width: 100%;         /* prend toute la largeur disponible du conteneur */
-  max-width: 600px;    /* limite la largeur sur grand écran */
-  height: auto;        /* conserve les proportions */
-  display: block;
-  margin: 20px auto;   /* centre le GIF */
-  border-radius: 10px;
-  opacity: 0;
-  transition: opacity 0.5s ease;
-}
+    /* ===== Jeu ===== */
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      background: rgba(50,50,50,0.8);
+      padding: 10px;
+      border-radius: 10px;
+      transition: all 0.5s ease;
+    }
+    .filters.hidden {
+      transform: translateY(-200px) scale(0.3);
+      opacity: 0;
+    }
 
-#gif.visible {
-  opacity: 1;
-}
+    select, button {
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-size: 1em;
+    }
 
-    /* Admin */
+    button {
+      background-color: #4CAF50;
+      color: #fff;
+    }
+    button:hover {
+      background-color: #3a9c42;
+    }
+
+    select {
+      background-color: #222;
+      color: #fff;
+      border: 1px solid #555;
+    }
+
+    #texte {
+      margin-top: 20px;
+      font-size: 1.5em;
+      font-weight: bold;
+      text-align: center;
+      color: #fff;
+    }
+
+    #gif {
+      width: 100%;
+      max-width: 600px;
+      height: auto;
+      display: block;
+      margin: 20px auto;
+      border-radius: 10px;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    #gif.visible { opacity: 1; }
+
+    /* ===== Admin ===== */
     form, table { width: 100%; margin-top: 20px; }
     input, select { padding: 6px 10px; margin: 5px; border-radius: 5px; border: 1px solid #ccc; }
     table { width: 100%; border-collapse: collapse; margin-top: 20px; }
     th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-    th { background: #ddd; }
+    th { background: #ddd; color: #000; }
     button.delete { background: #e74c3c; }
 
-/* ===== Media Query pour mobile ===== */
-@media (max-width: 600px) {
-  #gif {
-    max-width: 100%;  /* GIF prend toute la largeur sur petit écran */
-  }
-
+    /* ===== Mobile ===== */
+    @media (max-width: 600px) {
+      #gif { max-width: 100%; }
+    }
   </style>
 </head>
 <body>
@@ -68,11 +125,11 @@
   <!-- Section Jeu -->
   <div id="jeu" class="section active">
     <div class="filters">
-      <select id="niveau"><option value="">Niveau (tous)</option><option value="mains">Avec les mains</option><option value="bouche">Avec la bouche</option><option value="avancé">Avancé</option></select>
-      <select id="ambiance"><option value="">Ambiance (toutes)</option><option value="douce">Douce</option><option value="roleplay">Jeu de rôle</option><option value="mystère">Mystère</option></select>
+      <select id="niveau"><option value="">Niveau (tous)</option><option value="mains">Avec les mains</option><option value="bouche">Avec la bouche</option><option value="sexe">Avec son sexe</option></select>
+      <select id="ambiance"><option value="">Ambiance (toutes)</option><option value="romantique">Romantique</option><option value="domination">Domination</option><option value="bondage">Bondage</option></select>
       <select id="genre"><option value="">Genre (tous)</option><option value="homme">Homme</option><option value="femme">Femme</option></select>
       <select id="lieu"><option value="">Lieu (tous)</option><option value="intérieur">Intérieur</option><option value="extérieur">Extérieur</option></select>
-      <select id="type_special"><option value="">Type spécial (tous)</option><option value="oui">Oui</option><option value="non">Non</option></select>
+      <select id="type_special"><option value="">Anal ?</option><option value="oui">Oui</option><option value="non">Non</option></select>
     </div>
     <button id="btnTirer">🎲 Tirer un gage</button>
     <h2 id="texte"></h2>
@@ -85,8 +142,8 @@
       <input type="hidden" id="gage_id">
       <input type="text" id="texteAdmin" placeholder="Texte du gage" required style="width:60%;">
       <input type="text" id="gif_urlAdmin" placeholder="URL du GIF" style="width:35%;"><br>
-      <select id="niveauAdmin"><option value="mains">Avec les mains</option><option value="bouche">Avec la bouche</option><option value="avancé">Avancé</option></select>
-      <select id="ambianceAdmin"><option value="douce">Douce</option><option value="roleplay">Jeu de rôle</option><option value="mystère">Mystère</option></select>
+      <select id="niveauAdmin"><option value="mains">Avec les mains</option><option value="bouche">Avec la bouche</option><option value="avancé">Avec son sexe</option></select>
+      <select id="ambianceAdmin"><option value="romantique">Romantique</option><option value="domination">Domination</option><option value="bondage">Bondage</option></select>
       <select id="genreAdmin"><option value="homme">Homme</option><option value="femme">Femme</option><option value="mixte">Mixte</option></select>
       <select id="lieuAdmin"><option value="intérieur">Intérieur</option><option value="extérieur">Extérieur</option></select>
       <select id="type_specialAdmin"><option value="oui">Oui</option><option value="non">Non</option></select>
@@ -94,7 +151,7 @@
     </form>
     <table id="tableGages">
       <thead>
-        <tr><th>Texte</th><th>GIF</th><th>Niveau</th><th>Ambiance</th><th>Genre</th><th>Lieu</th><th>Type spécial</th><th>Actions</th></tr>
+        <tr><th>Texte</th><th>GIF</th><th>Niveau</th><th>Ambiance</th><th>Genre</th><th>Lieu</th><th>Anal</th><th>Actions</th></tr>
       </thead>
       <tbody></tbody>
     </table>
@@ -102,6 +159,7 @@
 
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
     const supabaseUrl = 'https://yqqhvanwoxmnakmzaqya.supabase.co'
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlxcWh2YW53b3htbmFrbXphcXlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA1MjA4NzYsImV4cCI6MjA3NjA5Njg3Nn0.eEHQBsTKNP9_nQ6LqFBjVgx_9WX9pY1uyX7xaedvn0o'
     const supabase = createClient(supabaseUrl, supabaseKey)
@@ -135,9 +193,12 @@
       gif.classList.remove('visible')
       gif.src = gage.gif_url||''
       setTimeout(()=>gif.classList.add('visible'),50)
+
+      // Faire disparaître le menu après tirage
+      document.querySelector('.filters').classList.add('hidden')
     }
 
-    document.getElementById('btnTirer').addEventListener('click',()=>{
+    document.getElementById('btnTirer').addEventListener('click', () => {
       const filtres = {
         niveau: document.getElementById('niveau').value,
         ambiance: document.getElementById('ambiance').value,
@@ -150,35 +211,35 @@
 
     // ===== Admin =====
     const form = document.getElementById('formGage')
-    const tbody = document.querySelector('#tableGages tbody')
+    const tableBody = document.querySelector('#tableGages tbody')
 
     async function chargerGages() {
-      const { data, error } = await supabase.from('gages').select('*')
+      const { data, error } = await supabase.from('gages').select('*').order('id')
       if(error) return console.error(error)
-      tbody.innerHTML = ''
-      data.forEach(gage=>{
-        const tr=document.createElement('tr')
-        tr.innerHTML=`
-          <td>${gage.texte}</td>
-          <td>${gage.gif_url?`<img src="${gage.gif_url}" width="60">`:''}</td>
-          <td>${gage.niveau}</td>
-          <td>${gage.ambiance}</td>
-          <td>${gage.genre}</td>
-          <td>${gage.lieu}</td>
-          <td>${gage.type_special}</td>
+      tableBody.innerHTML = ''
+      data.forEach(g=>{
+        const tr = document.createElement('tr')
+        tr.innerHTML = `
+          <td>${g.texte}</td>
+          <td>${g.gif_url||''}</td>
+          <td>${g.niveau}</td>
+          <td>${g.ambiance}</td>
+          <td>${g.genre}</td>
+          <td>${g.lieu}</td>
+          <td>${g.type_special}</td>
           <td>
-            <button onclick="modifier('${gage.id}')">✏️</button>
-            <button class="delete" onclick="supprimer('${gage.id}')">🗑️</button>
+            <button onclick="modifier(${g.id})">Modifier</button>
+            <button class="delete" onclick="supprimer(${g.id})">Supprimer</button>
           </td>
         `
-        tbody.appendChild(tr)
+        tableBody.appendChild(tr)
       })
     }
 
     form.addEventListener('submit', async e=>{
       e.preventDefault()
-      const gage_id=document.getElementById('gage_id').value
-      const gage={
+      const gage_id = document.getElementById('gage_id').value
+      const gage = {
         texte: document.getElementById('texteAdmin').value,
         gif_url: document.getElementById('gif_urlAdmin').value,
         niveau: document.getElementById('niveauAdmin').value,
