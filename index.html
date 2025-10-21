@@ -2,209 +2,109 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Jeu de Gages Immersif</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jeu de Gages - Accueil</title>
 <style>
-html, body {
-  margin:0; padding:0; width:100%; height:100%;
-  background-color:#000; font-family:sans-serif;
-  color:#fff; overflow:hidden;
-}
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    height: 100vh;
+    background: radial-gradient(circle at center, #111 0%, #000 100%);
+    color: #fff;
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    overflow: hidden;
+  }
 
-/* ===== Menu flottant ===== */
-.menu-button {
-  position: fixed;
-  top:10px; left:10px;
-  z-index:100;
-  padding:12px 18px;
-  border-radius:10px;
-  background:rgba(50,50,50,0.8);
-  cursor:pointer;
-  font-weight:bold;
-  font-size:18px;
-  transition:background 0.3s ease;
-}
+  h1 {
+    font-size: 2.6rem;
+    margin-bottom: 1.2rem;
+    background: linear-gradient(90deg, #00ffb3, #ff5fff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 1px;
+  }
 
-.menu-button:hover {
-  background:rgba(80,80,80,0.9);
-}
+  p.subtitle {
+    color: #ccc;
+    font-size: 1rem;
+    margin-bottom: 2.5rem;
+  }
 
-/* Menu de filtres */
-.filters {
-  position: fixed;
-  top:60px; left:10px;
-  z-index:100;
-  background: rgba(50,50,50,0.95);
-  padding:20px;
-  border-radius:12px;
-  display:none;
-  flex-direction:column;
-  gap:12px;
-  max-height:90%;
-  width:280px; /* ✅ menu plus grand */
-  overflow-y:auto;
-  font-size:16px;
-}
+  .choices {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
+  }
 
-.filters select, .filters button {
-  padding:10px 12px;
-  border-radius:6px;
-  border:none;
-  background:#222;
-  color:#fff;
-  cursor:pointer;
-  font-size:15px;
-}
+  .card {
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    width: 280px;
+    height: 180px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
 
-.filters button {
-  background-color:#4CAF50;
-  font-weight:bold;
-}
-.filters button:hover {
-  background-color:#3a9c42;
-}
+  .card:hover {
+    transform: translateY(-6px) scale(1.03);
+    border-color: #00ffb3;
+    box-shadow: 0 0 18px rgba(0,255,179,0.3);
+  }
 
-/* ===== Zone jeu ===== */
-.game-container {
-  width:100%;
-  height:100%;
-  position:relative;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
+  .card h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #00ffb3;
+  }
 
-#gif {
-  position: absolute;
-  top:50%;
-  left:50%;
-  transform: translate(-50%, -50%);
-  width:100%;
-  height:100%;
-  object-fit:contain;
-  z-index:1;
-}
+  .card p {
+    margin-top: 10px;
+    color: #aaa;
+    font-size: 0.95rem;
+  }
 
-#texte {
-  position:absolute;
-  top:5%;
-  left:50%;
-  transform: translateX(-50%);
-  z-index:2;
-  text-align:center;
-  font-size:1.8vw; /* plus petit et lisible */
-  font-weight:bold;
-  color:#fff;
-  text-shadow:2px 2px 10px rgba(0,0,0,0.7);
-  padding:8px 12px;
-  background: rgba(0,0,0,0.4);
-  border-radius:8px;
-  max-width:80%;
-  word-wrap: break-word;
-}
+  footer {
+    position: absolute;
+    bottom: 15px;
+    font-size: 0.85rem;
+    color: #555;
+  }
 
-@media (max-width: 768px){
-  #texte { font-size:4vw; }
-  .filters { width:85%; left:50%; transform:translateX(-50%); }
-}
+  @media (max-width: 600px) {
+    h1 { font-size: 2rem; }
+    .card { width: 85%; }
+  }
 </style>
 </head>
 <body>
 
-<!-- ===== MENU ===== -->
-<div class="menu-button" id="menuButton">☰ Menu</div>
-<div class="filters" id="filtersMenu">
-  <select id="niveau">
-    <option value="">Niveau</option>
-    <option value="mains">Avec les mains</option>
-    <option value="bouche">Avec la bouche</option>
-    <option value="avance">Avec son sexe</option>
-  </select>
+  <h1>Jeu de Gages</h1>
+  <p class="subtitle">Choisis ton mode de jeu</p>
 
-  <select id="ambiance">
-    <option value="">Ambiance</option>
-    <option value="romantique">Romantique</option>
-    <option value="domination">Domination</option>
-    <option value="bondage">Bondage</option>
-  </select>
+  <div class="choices">
+    <div class="card" onclick="location.href='alea_gage.html'">
+      <h2>🎲 Gages aléatoires</h2>
+      <p>Pioche un gage au hasard pour pimenter le moment, sans scénario préétabli.</p>
+    </div>
 
-  <select id="genre">
-    <option value="">Genre</option>
-    <option value="homme">Homme</option>
-    <option value="femme">Femme</option>
-  </select>
+    <div class="card" onclick="location.href='index_scenario_jeu.html'">
+      <h2>📖 Scénarios</h2>
+      <p>Joue une partie guidée avec des gages enchaînés selon un thème précis.</p>
+    </div>
+  </div>
 
-  <select id="lieu">
-    <option value="">Lieu</option>
-    <option value="interieur">Interieur</option>
-    <option value="exterieur">Exterieur</option>
-  </select>
-
-  <select id="type_special">
-    <option value="">Anal ?</option>
-    <option value="oui">Oui</option>
-    <option value="non">Non</option>
-  </select>
-
-  <button id="btnTirer">🎲 Tirer un gage</button>
-</div>
-
-<!-- ===== ZONE DE JEU ===== -->
-<div class="game-container">
-  <img id="gif" src="">
-  <div id="texte"></div>
-</div>
-
-<script type="module">
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-
-const supabaseUrl = 'https://yqqhvanwoxmnakmzaqya.supabase.co'
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlxcWh2YW53b3htbmFrbXphcXlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA1MjA4NzYsImV4cCI6MjA3NjA5Njg3Nn0.eEHQBsTKNP9_nQ6LqFBjVgx_9WX9pY1uyX7xaedvn0o' // 🔑 Remplace par ta clé publique Supabase
-const supabase = createClient(supabaseUrl, supabaseKey)
-
-const menuButton = document.getElementById('menuButton')
-const filtersMenu = document.getElementById('filtersMenu')
-
-menuButton.addEventListener('click', () => {
-  filtersMenu.style.display = filtersMenu.style.display === 'flex' ? 'none' : 'flex'
-})
-
-async function tirerGage() {
-  filtersMenu.style.display = 'none'
-
-  const filtres = {
-    niveau: document.getElementById('niveau').value,
-    ambiance: document.getElementById('ambiance').value,
-    genre: document.getElementById('genre').value,
-    lieu: document.getElementById('lieu').value,
-    type_special: document.getElementById('type_special').value
-  }
-
-  let query = supabase.from('gages').select('*')
-  if (filtres.niveau) query = query.eq('niveau', filtres.niveau)
-  if (filtres.ambiance) query = query.eq('ambiance', filtres.ambiance)
-  if (filtres.lieu) query = query.eq('lieu', filtres.lieu)
-  if (filtres.type_special) query = query.eq('type_special', filtres.type_special)
-  if (filtres.genre) query = query.in('genre', [filtres.genre, 'mixte'])
-
-  const { data, error } = await query
-  if (error) {
-    console.error(error)
-    alert("Erreur lors du tirage 😢")
-    return
-  }
-
-  if (!data || data.length === 0) {
-    alert("Aucun gage trouvé 😅")
-    return
-  }
-
-  const gage = data[Math.floor(Math.random() * data.length)]
-  document.getElementById('gif').src = gage.gif_url || ''
-  document.getElementById('texte').textContent = gage.texte
-}
-
-document.getElementById('btnTirer').addEventListener('click', tirerGage)
-</script>
+  <footer>© 2025 – Jeu de Gages Intime</footer>
 
 </body>
 </html>

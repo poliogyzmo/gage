@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Jeu de Gages Immersif</title>
+<style>
+html, body {
+  margin:0; padding:0; width:100%; height:100%;
+  background-color:#000; font-family:sans-serif;
+  color:#fff; overflow:hidden;
+}
+
+/* ===== Menu flottant ===== */
+.menu-button {
+  position: fixed;
+  top:10px; left:10px;
+  z-index:100;
+  padding:12px 18px;
+  border-radius:10px;
+  background:rgba(50,50,50,0.8);
+  cursor:pointer;
+  font-weight:bold;
+  font-size:18px;
+  transition:background 0.3s ease;
+}
+
+.menu-button:hover {
+  background:rgba(80,80,80,0.9);
+}
+
+/* Menu de filtres */
+.filters {
+  position: fixed;
+  top:60px; left:10px;
+  z-index:100;
+  background: rgba(50,50,50,0.95);
+  padding:20px;
+  border-radius:12px;
+  display:none;
+  flex-direction:column;
+  gap:12px;
+  max-height:90%;
+  width:280px; /* ✅ menu plus grand */
+  overflow-y:auto;
+  font-size:16px;
+}
+
+.filters select, .filters button {
+  padding:10px 12px;
+  border-radius:6px;
+  border:none;
+  background:#222;
+  color:#fff;
+  cursor:pointer;
+  font-size:15px;
+}
+
+.filters button {
+  background-color:#4CAF50;
+  font-weight:bold;
+}
+.filters button:hover {
+  background-color:#3a9c42;
+}
+
+/* ===== Zone jeu ===== */
+.game-container {
+  width:100%;
+  height:100%;
+  position:relative;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+#gif {
+  position: absolute;
+  top:50%;
+  left:50%;
+  transform: translate(-50%, -50%);
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  z-index:1;
+}
+
+#texte {
+  position:absolute;
+  top:5%;
+  left:50%;
+  transform: translateX(-50%);
+  z-index:2;
+  text-align:center;
+  font-size:1.8vw; /* plus petit et lisible */
+  font-weight:bold;
+  color:#fff;
+  text-shadow:2px 2px 10px rgba(0,0,0,0.7);
+  padding:8px 12px;
+  background: rgba(0,0,0,0.4);
+  border-radius:8px;
+  max-width:80%;
+  word-wrap: break-word;
+}
+
+@media (max-width: 768px){
+  #texte { font-size:4vw; }
+  .filters { width:85%; left:50%; transform:translateX(-50%); }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== MENU ===== -->
+<div class="menu-button" id="menuButton">☰ Menu</div>
+<div class="filters" id="filtersMenu">
+  <select id="niveau">
+    <option value="">Niveau</option>
+    <option value="mains">Avec les mains</option>
+    <option value="bouche">Avec la bouche</option>
+    <option value="avance">Avec son sexe</option>
+  </select>
+
+  <select id="ambiance">
+    <option value="">Ambiance</option>
+    <option value="romantique">Romantique</option>
+    <option value="domination">Domination</option>
+    <option value="bondage">Bondage</option>
+  </select>
+
+  <select id="genre">
+    <option value="">Genre</option>
+    <option value="homme">Homme</option>
+    <option value="femme">Femme</option>
+  </select>
+
+  <select id="lieu">
+    <option value="">Lieu</option>
+    <option value="interieur">Interieur</option>
+    <option value="exterieur">Exterieur</option>
+  </select>
+
+  <select id="type_special">
+    <option value="">Anal ?</option>
+    <option value="oui">Oui</option>
+    <option value="non">Non</option>
+  </select>
+
+  <button id="btnTirer">🎲 Tirer un gage</button>
+</div>
+
+<!-- ===== ZONE DE JEU ===== -->
+<div class="game-container">
+  <img id="gif" src="">
+  <div id="texte"></div>
+</div>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+const supabaseUrl = 'https://yqqhvanwoxmnakmzaqya.supabase.co'
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlxcWh2YW53b3htbmFrbXphcXlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA1MjA4NzYsImV4cCI6MjA3NjA5Njg3Nn0.eEHQBsTKNP9_nQ6LqFBjVgx_9WX9pY1uyX7xaedvn0o' // 🔑 Remplace par ta clé publique Supabase
+const supabase = createClient(supabaseUrl, supabaseKey)
+
+const menuButton = document.getElementById('menuButton')
+const filtersMenu = document.getElementById('filtersMenu')
+
+menuButton.addEventListener('click', () => {
+  filtersMenu.style.display = filtersMenu.style.display === 'flex' ? 'none' : 'flex'
+})
+
+async function tirerGage() {
+  filtersMenu.style.display = 'none'
+
+  const filtres = {
+    niveau: document.getElementById('niveau').value,
+    ambiance: document.getElementById('ambiance').value,
+    genre: document.getElementById('genre').value,
+    lieu: document.getElementById('lieu').value,
+    type_special: document.getElementById('type_special').value
+  }
+
+  let query = supabase.from('gages').select('*')
+  if (filtres.niveau) query = query.eq('niveau', filtres.niveau)
+  if (filtres.ambiance) query = query.eq('ambiance', filtres.ambiance)
+  if (filtres.lieu) query = query.eq('lieu', filtres.lieu)
+  if (filtres.type_special) query = query.eq('type_special', filtres.type_special)
+  if (filtres.genre) query = query.in('genre', [filtres.genre, 'mixte'])
+
+  const { data, error } = await query
+  if (error) {
+    console.error(error)
+    alert("Erreur lors du tirage 😢")
+    return
+  }
+
+  if (!data || data.length === 0) {
+    alert("Aucun gage trouvé 😅")
+    return
+  }
+
+  const gage = data[Math.floor(Math.random() * data.length)]
+  document.getElementById('gif').src = gage.gif_url || ''
+  document.getElementById('texte').textContent = gage.texte
+}
+
+document.getElementById('btnTirer').addEventListener('click', tirerGage)
+</script>
+
+</body>
+</html>

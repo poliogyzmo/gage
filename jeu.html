@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<title>Jeu de Gages - Partie</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<style>
+  :root{--accent:#00ff99}
+  html,body{height:100%;margin:0;background:#000;color:#fff;font-family:system-ui,Segoe UI,Arial;}
+  .app{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden}
+  #gif{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:1;background:#000}
+  #texte{position:absolute;top:4%;left:50%;transform:translateX(-50%);z-index:2;background:rgba(0,0,0,0.45);padding:8px 14px;border-radius:8px;font-weight:700;font-size:1.6vw;max-width:86%;text-align:center}
+  @media(max-width:768px){#texte{font-size:4.5vw}}
+  .controls{position:fixed;bottom:4%;left:50%;transform:translateX(-50%);display:flex;gap:12px;z-index:3}
+  .btn{background:var(--accent);border:none;color:#000;padding:10px 16px;border-radius:10px;font-weight:700;cursor:pointer}
+  .btn.alt{background:#666;color:#fff}
+  #progress{position:fixed;bottom:0;left:0;height:5px;background:var(--accent);width:0%;z-index:4;transition:width .4s ease}
+  .status{position:fixed;top:12px;right:12px;background:rgba(255,255,255,0.06);padding:8px 10px;border-radius:8px;font-size:13px;z-index:5}
+  .menu-toggle{position:fixed;top:12px;left:12px;z-index:6;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,0.06);cursor:pointer}
+  .menu{position:fixed;top:56px;left:12px;z-index:6;background:rgba(0,0,0,0.85);padding:12px;border-radius:10px;max-width:320px;color:#ddd;display:none}
+  .menu.visible{display:block}
+  .menu input, .menu select{width:100%;margin:6px 0;padding:8px;border-radius:6px;border:1px solid #333;background:#111;color:#fff}
+  .menu label{font-size:13px;color:#bbb}
+  .small-note{font-size:12px;color:#999;margin-top:6px}
+  .error{color:#ff6b6b}
+</style>
+</head>
+<body>
+  <div class="app">
+    <img id="gif" src="" alt="gif"/>
+    <div id="texte">Charge... appuyez sur Démarrer</div>
+
+    <div class="controls">
+      <button id="changeBtn" class="btn alt">🔄 Changer</button>
+      <button id="nextBtn" class="btn">⏭ Suivant</button>
+    </div>
+
+    <div id="progress"></div>
+
+    <div class="status" id="status">Prêt</div>
+    <button class="menu-toggle" id="menuToggle">⚙️</button>
+
+    <div class="menu" id="menu">
+      <label>Nom joueur 1</label>
+      <input id="joueur1" placeholder="Prénom..." />
+      <label>Genre joueur 1</label>
+      <select id="genre1"><option value="homme">Homme</option><option value="femme">Femme</option></select>
+      <label>Gages spéciaux joueur 1</label>
+      <select id="spec1"><option value="non">Non</option><option value="oui_sans_penetration">Oui (sans pénétration)</option><option value="oui">Oui</option></select>
+
+      <hr style="border:none;height:1px;background:#222;margin:8px 0" />
+
+      <label>Nom joueur 2</label>
+      <input id="joueur2" placeholder="Prénom..." />
+      <label>Genre joueur 2</label>
+      <select id="genre2"><option value="homme">Homme</option><option value="femme">Femme</option></select>
+      <label>Gages spéciaux joueur 2</label>
+      <select id="spec2"><option value="non">Non</option><option value="oui_sans_penetration">Oui (sans pénétration)</option><option value="oui">Oui</option></select>
+
+      <hr style="border:none;height:1px;background:#222;margin:8px 0" />
+
+      <label>Scénario</label>
+      <select id="scenario">
+        <option value="soft_court">Soft court (4 gages chacun en alternance)</option>
+        <option value="soft_long">Soft long (9 gages chacun en alternance)</option>
+        <option value="progressif">Progressif (6 gages chacun en alternance)</option>
+        <option value="bdsm">BDSM (6 gages chacun)</option>
+        <option value="switch">Switch (6 gages chacun)</option>
+      </select>
+
+      <div class="small-note">Tous les gages tirés = lieu = "interieur"</div>
+      <button id="startBtn" style="margin-top:8px;background:var(--accent);border:none;padding:8px;border-radius:8px;cursor:pointer">Démarrer</button>
+      <div class="small-note" style="margin-top:10px">Console dev (F12) affiche logs et erreurs.</div>
+    </div>
+  </div>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+// --- CONFIG : remplace la clé ci-dessous par ta clé ANON Supabase ---
+const SUPABASE_URL = 'https://yqqhvanwoxmnakmzaqya.supabase.co'
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlxcWh2YW53b3htbmFrbXphcXlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA1MjA4NzYsImV4cCI6MjA3NjA5Njg3Nn0.eEHQBsTKNP9_nQ6LqFBjVgx_9WX9pY1uyX7xaedvn0o' // <--- Remplace ici
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+
+// éléments UI
+const menu = document.getElementById('menu')
+const menuToggle = document.getElementById('menuToggle')
+const startBtn = document.getElementById('startBtn')
+const texteDiv = document.getElementById('texte')
+const gifImg = document.getElementById('gif')
+const nextBtn = document.getElementById('nextBtn')
+const changeBtn = document.getElementById('changeBtn')
+const progressBar = document.getElementById('progress')
+const status = document.getElementById('status')
+
+// état
+let sequence = []        // tableau d'objets gage
+let index = 0
+const usedIds = new Set()
+let player1 = {}, player2 = {}, scenario = ''
+
+menuToggle.onclick = () => menu.classList.toggle('visible')
+
+// util : lecture params from URL or localStorage
+function readParams() {
+  const url = new URL(location.href)
+  const qs = Object.fromEntries(url.searchParams.entries())
+  if(Object.keys(qs).length) {
+    // mapping : form names in index.html
+    return {
+      joueur1: qs.joueur1 || qs.nomFemme || '',
+      genre1: qs.genre1 || qs.genreFemme || 'femme',
+      spec1: qs.special1 || qs.special_femme || 'non',
+      joueur2: qs.joueur2 || qs.nomHomme || '',
+      genre2: qs.genre2 || qs.genreHomme || 'homme',
+      spec2: qs.special2 || qs.special_homme || 'non',
+      scenario: qs.scenario || qs.mode || 'soft_court'
+    }
+  }
+  // try localStorage fallback (older versions)
+  const saved = localStorage.getItem('parametres')
+  if(saved) return JSON.parse(saved)
+  return null
+}
+
+// --- Scénarios stricts (ordres) ---
+// Each array element is { genre, niveau, ambiance } where ambiance can be string or 'mixed_dom' meaning choose between domination|bondage
+const SCENARIOS = {
+  soft_court: [
+    {genre:'homme', niveau:'mains', ambiance:'romantique'},
+    {genre:'femme', niveau:'mains', ambiance:'romantique'},
+    {genre:'homme', niveau:'mains', ambiance:'romantique'},
+    {genre:'femme', niveau:'mains', ambiance:'romantique'},
+    {genre:'homme', niveau:'bouche', ambiance:'romantique'},
+    {genre:'femme', niveau:'bouche', ambiance:'romantique'},
+    {genre:'homme', niveau:'avance', ambiance:'romantique'},
+    {genre:'femme', niveau:'avance', ambiance:'romantique'}
+  ],
+  soft_long: (()=>{
+    // 18 entries (9 each) alternating male/female
+    const arr=[]
+    const pushRepeat = (genre,n, count)=>{
+      for(let i=0;i<count;i++){
+        arr.push({genre, niveau:n, ambiance:'romantique'})
+      }
+    }
+    // pattern per spec: 6 mains each (3 pairs?), then 6 bouche each, then 6 avance each -> but spec indicates 18 per player (total 36) — the user earlier wanted 9 gages each -> total 18? The user specified "9 gages chacun" = 18 total.
+    // We'll implement 9 per player (18 total) as sequence: 6 mains (3 each alternating), 6 bouche (3 each alternating), 6 avance (3 each alternating) -> but to match exact counts earlier -> build 18 alternating exact:
+    const pattern = [
+      'mains','mains','mains','mains','mains','mains',
+      'bouche','bouche','bouche','bouche','bouche','bouche',
+      'avance','avance','avance','avance','avance','avance'
+    ] // 18 entries
+    // alternate genres: homme,femme,...
+    for(let i=0;i<pattern.length;i++){
+      const genre = (i%2===0)?'homme':'femme'
+      arr.push({genre, niveau:pattern[i], ambiance:'romantique'})
+    }
+    return arr
+  })(),
+  progressif: [
+    {genre:'homme', niveau:'mains', ambiance:'romantique'},
+    {genre:'femme', niveau:'mains', ambiance:'romantique'},
+    {genre:'homme', niveau:'mains', ambiance:'mixed_dom'},
+    {genre:'femme', niveau:'mains', ambiance:'mixed_dom'},
+    {genre:'homme', niveau:'bouche', ambiance:'romantique'},
+    {genre:'femme', niveau:'bouche', ambiance:'romantique'},
+    {genre:'homme', niveau:'bouche', ambiance:'mixed_dom'},
+    {genre:'femme', niveau:'bouche', ambiance:'mixed_dom'},
+    {genre:'homme', niveau:'avance', ambiance:'romantique'},
+    {genre:'femme', niveau:'avance', ambiance:'romantique'},
+    {genre:'homme', niveau:'avance', ambiance:'mixed_dom'},
+    {genre:'femme', niveau:'avance', ambiance:'mixed_dom'}
+  ],
+  bdsm: [
+    {genre:'homme', niveau:'mains', ambiance:'mixed_dom'},
+    {genre:'homme', niveau:'mains', ambiance:'mixed_dom'},
+    {genre:'femme', niveau:'mains', ambiance:'mixed_dom'},
+    {genre:'femme', niveau:'mains', ambiance:'mixed_dom'},
+    {genre:'femme', niveau:'bouche', ambiance:'mixed_dom'},
+    {genre:'femme', niveau:'bouche', ambiance:'mixed_dom'},
+    {genre:'homme', niveau:'bouche', ambiance:'mixed_dom'},
+    {genre:'homme', niveau:'bouche', ambiance:'mixed_dom'},
+    {genre:'homme', niveau:'avance', ambiance:'mixed_dom'},
+    {genre:'homme', niveau:'avance', ambiance:'mixed_dom'},
+    {genre:'femme', niveau:'avance', ambiance:'mixed_dom'},
+    {genre:'femme', niveau:'avance', ambiance:'mixed_dom'}
+  ],
+  switch: [
+    {genre:'homme', niveau:'mains', ambiance:'mixed_dom'},
+    {genre:'homme', niveau:'mains', ambiance:'mixed_dom'},
+    {genre:'homme', niveau:'bouche', ambiance:'mixed_dom'},
+    {genre:'homme', niveau:'bouche', ambiance:'mixed_dom'},
+    {genre:'homme', niveau:'avance', ambiance:'mixed_dom'},
+    {genre:'homme', niveau:'avance', ambiance:'mixed_dom'},
+    {genre:'femme', niveau:'mains', ambiance:'mixed_dom'},
+    {genre:'femme', niveau:'mains', ambiance:'mixed_dom'},
+    {genre:'femme', niveau:'bouche', ambiance:'mixed_dom'},
+    {genre:'femme', niveau:'bouche', ambiance:'mixed_dom'},
+    {genre:'femme', niveau:'avance', ambiance:'mixed_dom'},
+    {genre:'femme', niveau:'avance', ambiance:'mixed_dom'}
+  ]
+}
+
+// helper: choose random element
+const rand = arr => arr[Math.floor(Math.random()*arr.length)]
+
+// pick random between domination and bondage when ambiance == 'mixed_dom'
+function pickAmbiance(a){
+  if(a === 'mixed_dom') return Math.random() < 0.5 ? 'domination' : 'bondage'
+  return a
+}
+
+// build query & fetch
+async function fetchCandidates({genre, niveau, ambiance, preferSpecial}) {
+  // ambiance may be array or single
+  const query = supabase
+    .from('gages')
+    .select('*')
+    .eq('lieu','interieur')
+    // genre or mixte
+    .or(`genre.eq.${genre},genre.eq.mixte`)
+    .eq('niveau', niveau)
+    .in('ambiance', Array.isArray(ambiance) ? ambiance : [ambiance])
+    .limit(500)
+
+  const { data, error } = await query
+  if(error){
+    console.error('Supabase error', error)
+    throw error
+  }
+  if(!data || data.length === 0) return []
+
+  // filter by special preference:
+  const filtered = data.filter(g => {
+    const ts = g.type_special // expected 'oui' or 'non' (or null)
+    if(preferSpecial === 'non') return ts === 'non'
+    if(preferSpecial === 'oui') return true // accept oui and non
+    if(preferSpecial === 'oui_sans_penetration'){
+      if(niveau === 'avance') return ts === 'non'
+      return true // for mains/bouche accept both
+    }
+    return true
+  })
+  return filtered.length ? filtered : data // if none match preferSpecial, fallback to full set
+}
+
+// pick one candidate avoiding duplicates if possible
+function pickUnique(candidates){
+  if(!candidates || candidates.length === 0) return null
+  // try to find one not used yet
+  const available = candidates.filter(c => !usedIds.has(c.id))
+  const chosen = available.length ? rand(available) : rand(candidates)
+  return chosen
+}
+
+// main : generate sequence of gages (objects with fields + chosen special preference)
+async function buildSequence(scenarioName, players){
+  const pattern = SCENARIOS[scenarioName]
+  if(!pattern) throw new Error('Scenario inconnu: '+scenarioName)
+  const seq = []
+  for(const step of pattern){
+    // pick ambiance (random when mixed)
+    const amb = pickAmbiance(step.ambiance)
+    // determine which player is target (if step.genre == 'homme' then target is player with genre 'homme')
+    // but players may have arbitrary genre; the requirement: "For each gage, put the name of player of opposite gender before text"
+    // We'll choose target player index by comparing step.genre to players' genre values.
+    const target = (players[0].genre === step.genre) ? players[0] : (players[1].genre === step.genre ? players[1] : (players[0].genre === 'mixte' ? players[0] : players[1]))
+    // But to determine preference for special, we must use the target's preference
+    const preferSpecial = target.special
+    // fetch candidates with filters (lieu already)
+    let candidates = []
+    try{
+      candidates = await fetchCandidates({genre: step.genre, niveau: step.niveau, ambiance: amb, preferSpecial})
+    }catch(e){
+      console.error(e); candidates = []
+    }
+    if(!candidates.length){
+      // fallback: create placeholder
+      seq.push({ id: `none-${step.genre}-${step.niveau}-${amb}`, texte: 'Aucun gage disponible pour ces filtres', gif_url:'', genre: step.genre, niveau: step.niveau, ambiance: amb, special: preferSpecial})
+      continue
+    }
+    const chosen = pickUnique(candidates)
+    if(chosen) usedIds.add(chosen.id)
+    // attach which player's preference used (for later "change")
+    seq.push(Object.assign({}, chosen, {specialUsed: preferSpecial, requestedAmbiance: amb}))
+  }
+  return seq
+}
+
+// afficher
+function renderCurrent(){
+  const g = sequence[index]
+  if(!g){ texteDiv.textContent = 'Aucun gage.'; gifImg.src = ''; return }
+  // determine partner name to display BEFORE the gage text: "nom du joueur opposé au genre du gage"
+  const p1 = player1, p2 = player2
+  // find opposite: if g.genre === 'homme' then partner is the player whose genre !== 'homme' (prefer the other)
+  let partnerName = ''
+  if(g.genre === 'homme'){
+    partnerName = (p1.genre === 'homme' && p2.genre !== 'homme') ? p2.name : (p2.genre === 'homme' && p1.genre !== 'homme' ? p1.name : (p1.name||p2.name))
+  } else if(g.genre === 'femme'){
+    partnerName = (p1.genre === 'femme' && p2.genre !== 'femme') ? p2.name : (p2.genre === 'femme' && p1.genre !== 'femme' ? p1.name : (p1.name||p2.name))
+  } else {
+    partnerName = p1.name || p2.name
+  }
+  texteDiv.textContent = `${partnerName} : ${g.texte || '—'}`
+  gifImg.src = g.gif_url || ''
+  // progress
+  const pct = Math.round(((index+1)/sequence.length)*100)
+  progressBar.style.width = pct + '%'
+  status.textContent = `Gage ${index+1}/${sequence.length}`
+}
+
+// actions
+nextBtn.onclick = () => {
+  if(index < sequence.length - 1){
+    index++
+    renderCurrent()
+  } else {
+    status.textContent = 'Fin de la partie 🎉'
+    texteDiv.textContent = '🎉 Fin de la partie !'
+    gifImg.src = ''
+  }
+}
+
+changeBtn.onclick = async () => {
+  const currentStep = sequence[index]
+  // re-fetch candidates for this step using the same requested filters & specialUsed
+  const amb = currentStep.requestedAmbiance || currentStep.ambiance
+  const prefer = currentStep.specialUsed || (currentStep.genre === player1.genre ? player1.special : player2.special)
+  const candidates = await fetchCandidates({genre: currentStep.genre, niveau: currentStep.niveau, ambiance: amb, preferSpecial: prefer})
+  if(!candidates.length){
+    status.textContent = 'Aucun autre gage disponible'
+    return
+  }
+  const chosen = pickUnique(candidates)
+  if(chosen) usedIds.add(chosen.id)
+  sequence[index] = Object.assign({}, chosen, {specialUsed: prefer, requestedAmbiance: amb})
+  renderCurrent()
+}
+
+// start game
+startBtn.onclick = async () => {
+  // read inputs from menu
+  const j1 = document.getElementById('joueur1').value.trim()
+  const g1 = document.getElementById('genre1').value
+  const s1 = document.getElementById('spec1').value
+  const j2 = document.getElementById('joueur2').value.trim()
+  const g2 = document.getElementById('genre2').value
+  const s2 = document.getElementById('spec2').value
+  const scen = document.getElementById('scenario').value
+  if(!j1 || !j2){ alert('Renseigne les 2 prénoms'); return }
+  player1 = {name:j1, genre:g1, special:s1}
+  player2 = {name:j2, genre:g2, special:s2}
+  scenario = scen
+  // reset
+  usedIds.clear()
+  index = 0
+  sequence = []
+  status.textContent = 'Génération des gages...'
+  try{
+    sequence = await buildSequence(scenario, [player1, player2])
+    if(!sequence || !sequence.length) { status.textContent = 'Aucun gage généré'; return }
+    renderCurrent()
+    status.textContent = `Prêt — ${sequence.length} gages`
+  }catch(err){
+    console.error(err)
+    status.innerHTML = '<span class="error">Erreur lors de la génération (voir console)</span>'
+  }
+  menu.classList.remove('visible')
+}
+
+// initial: try to prefill from URL or localStorage
+(function prefills(){
+  const params = (function(){
+    const u = new URL(location.href)
+    const qs = Object.fromEntries(u.searchParams.entries())
+    if(Object.keys(qs).length) return qs
+    const fromStorage = localStorage.getItem('parametres')
+    return fromStorage ? JSON.parse(fromStorage) : null
+  })()
+  if(params){
+    if(params.joueur1) document.getElementById('joueur1').value = params.joueur1
+    if(params.genre1) document.getElementById('genre1').value = params.genre1
+    if(params.spec1) document.getElementById('spec1').value = params.spec1
+    if(params.joueur2) document.getElementById('joueur2').value = params.joueur2
+    if(params.genre2) document.getElementById('genre2').value = params.genre2
+    if(params.spec2) document.getElementById('spec2').value = params.spec2
+    if(params.scenario) document.getElementById('scenario').value = params.scenario
+  }
+})()
+
+// extra: debug info in console for supabase connectivity
+(async ()=>{
+  try{
+    // small test to detect key errors / network
+    const { data, error } = await supabase.from('gages').select('id').limit(1)
+    if(error) {
+      console.warn('Supabase test error:', error)
+      status.innerHTML = '<span class="error">Erreur Supabase — vérifie la clé / RLS (voir console)</span>'
+    } else {
+      status.textContent = 'Prêt — configure et démarre'
+    }
+  }catch(e){
+    console.error('Supabase init error', e)
+    status.innerHTML = '<span class="error">Impossible de joindre Supabase (voir console)</span>'
+  }
+})()
+
+</script>
+</body>
+</html>
