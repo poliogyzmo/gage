@@ -63,7 +63,7 @@
       <select id="scenario">
         <option value="soft_court">Soft court (4 gages chacun en alternance)</option>
         <option value="soft_long">Soft long (9 gages chacun en alternance)</option>
-        <option value="progressif">Progressif (6 gages chacun en alternance)</option>
+        <option value="progressif">Progressif (9 gages chacun en alternance)</option>
         <option value="bdsm">BDSM mix domination et bondage (9 gages chacun)</option>
         <option value="domination">Domination (9 gages chacun)</option>
         <option value="bondage">Bondage (9 gages chacun)</option>
@@ -138,29 +138,30 @@ const SCENARIOS = {
     {genre:'homme', niveau:'avance', ambiance:'romantique'},
     {genre:'femme', niveau:'avance', ambiance:'romantique'}
   ],
-  soft_long: (()=>{
-    // 18 entries (9 each) alternating male/female
-    const arr=[]
-    const pushRepeat = (genre,n, count)=>{
-      for(let i=0;i<count;i++){
-        arr.push({genre, niveau:n, ambiance:'romantique'})
-      }
-    }
-    // pattern per spec: 6 mains each (3 pairs?), then 6 bouche each, then 6 avance each -> but spec indicates 18 per player (total 36) — the user earlier wanted 9 gages each -> total 18? The user specified "9 gages chacun" = 18 total.
-    // We'll implement 9 per player (18 total) as sequence: 6 mains (3 each alternating), 6 bouche (3 each alternating), 6 avance (3 each alternating) -> but to match exact counts earlier -> build 18 alternating exact:
-    const pattern = [
-      'mains','mains','mains','mains','mains','mains',
-      'bouche','bouche','bouche','bouche','bouche','bouche',
-      'avance','avance','avance','avance','avance','avance'
-    ] // 18 entries
-    // alternate genres: homme,femme,...
-    for(let i=0;i<pattern.length;i++){
-      const genre = (i%2===0)?'homme':'femme'
-      arr.push({genre, niveau:pattern[i], ambiance:'romantique'})
-    }
-    return arr
-  })(),
+  soft_long: [
+    {genre:'homme', niveau:'mains', ambiance:'romantique'},
+    {genre:'femme', niveau:'mains', ambiance:'romantique'},
+    {genre:'homme', niveau:'mains', ambiance:'romantique'},
+    {genre:'femme', niveau:'mains', ambiance:'romantique'},
+    {genre:'homme', niveau:'mains', ambiance:'romantique'},
+    {genre:'femme', niveau:'mains', ambiance:'romantique'},
+    {genre:'homme', niveau:'bouche', ambiance:'romantique'},
+    {genre:'femme', niveau:'bouche', ambiance:'romantique'},
+    {genre:'homme', niveau:'bouche', ambiance:'romantique'},
+    {genre:'femme', niveau:'bouche', ambiance:'romantique'},
+    {genre:'homme', niveau:'bouche', ambiance:'romantique'},
+    {genre:'femme', niveau:'bouche', ambiance:'romantique'},
+    {genre:'homme', niveau:'avance', ambiance:'romantique'},
+    {genre:'femme', niveau:'avance', ambiance:'romantique'}
+    {genre:'homme', niveau:'avance', ambiance:'romantique'},
+    {genre:'femme', niveau:'avance', ambiance:'romantique'}
+    {genre:'homme', niveau:'avance', ambiance:'romantique'},
+    {genre:'femme', niveau:'avance', ambiance:'romantique'}
+  ],
+    
   progressif: [
+    {genre:'homme', niveau:'mains', ambiance:'romantique'},
+    {genre:'femme', niveau:'mains', ambiance:'romantique'},
     {genre:'homme', niveau:'mains', ambiance:'romantique'},
     {genre:'femme', niveau:'mains', ambiance:'romantique'},
     {genre:'homme', niveau:'mains', ambiance:'mixed_dom'},
@@ -169,8 +170,12 @@ const SCENARIOS = {
     {genre:'femme', niveau:'bouche', ambiance:'romantique'},
     {genre:'homme', niveau:'bouche', ambiance:'mixed_dom'},
     {genre:'femme', niveau:'bouche', ambiance:'mixed_dom'},
+    {genre:'homme', niveau:'bouche', ambiance:'mixed_dom'},
+    {genre:'femme', niveau:'bouche', ambiance:'mixed_dom'},
     {genre:'homme', niveau:'avance', ambiance:'romantique'},
     {genre:'femme', niveau:'avance', ambiance:'romantique'},
+    {genre:'homme', niveau:'avance', ambiance:'mixed_dom'},
+    {genre:'femme', niveau:'avance', ambiance:'mixed_dom'}
     {genre:'homme', niveau:'avance', ambiance:'mixed_dom'},
     {genre:'femme', niveau:'avance', ambiance:'mixed_dom'}
   ],
@@ -463,5 +468,6 @@ startBtn.onclick = async () => {
 </body>
 
 </html>
+
 
 
