@@ -78,23 +78,30 @@ function applyParams() {
 
 // --- SCENARIOS ---
 const SCENARIOS = {
-  soft_court: [
-    {genre:'femme', niveau:1, ambiance:'soft'},
-    {genre:'homme', niveau:1, ambiance:'soft'},
-    {genre:'femme', niveau:2, ambiance:'soft'},
-    {genre:'homme', niveau:2, ambiance:'soft'},
-    {genre:'femme', niveau:3, ambiance:'soft'},
-    {genre:'homme', niveau:3, ambiance:'soft'},
-    {genre:'femme', niveau:4, ambiance:'soft'},
-    {genre:'homme', niveau:4, ambiance:'soft'}
-  ],
-  soft_long: Array.from({length:18}, (_,i)=>({genre:i%2?'homme':'femme',niveau:Math.ceil((i+1)/2),ambiance:'soft'})),
-  progressif: Array.from({length:18}, (_,i)=>({genre:i%2?'homme':'femme',niveau:Math.ceil((i+1)/2),ambiance:i<6?'soft':(i<12?'moyen':'hard')})),
-  bdsm: Array.from({length:18}, (_,i)=>({genre:i%2?'homme':'femme',niveau:Math.ceil((i+1)/2),ambiance:'bondage'})),
-  domination: Array.from({length:18}, (_,i)=>({genre:i%2?'homme':'femme',niveau:Math.ceil((i+1)/2),ambiance:'domination'})),
-  bondage: Array.from({length:18}, (_,i)=>({genre:i%2?'homme':'femme',niveau:Math.ceil((i+1)/2),ambiance:'bondage'})),
-  switch: Array.from({length:16}, (_,i)=>({genre:i%2?'homme':'femme',niveau:Math.ceil((i+1)/2),ambiance:i%4<2?'domination':'bondage'}))
-}
+  soft_court: [ 
+    {genre:'homme', niveau:'mains', ambiance:'romantique'}, 
+    {genre:'femme', niveau:'mains', ambiance:'romantique'}, 
+    {genre:'homme', niveau:'mains', ambiance:'romantique'}, 
+    {genre:'femme', niveau:'mains', ambiance:'romantique'}, 
+    {genre:'homme', niveau:'bouche', ambiance:'romantique'}, 
+    {genre:'femme', niveau:'bouche', ambiance:'romantique'}, 
+    {genre:'homme', niveau:'avance', ambiance:'romantique'}, 
+    {genre:'femme', niveau:'avance', ambiance:'romantique'} ], 
+  
+  soft_long: [ 
+    {genre:'homme', niveau:'mains', ambiance:'romantique'}, 
+    {genre:'femme', niveau:'mains', ambiance:'romantique'}, 
+    {genre:'homme', niveau:'mains', ambiance:'romantique'}, 
+    {genre:'femme', niveau:'mains', ambiance:'romantique'}, 
+    {genre:'homme', niveau:'mains', ambiance:'romantique'}, 
+    {genre:'femme', niveau:'mains', ambiance:'romantique'}, 
+    {genre:'homme', niveau:'bouche', ambiance:'romantique'}, 
+    {genre:'femme', niveau:'bouche', ambiance:'romantique'}, 
+    {genre:'homme', niveau:'bouche', ambiance:'romantique'}, 
+    {genre:'femme', niveau:'bouche', ambiance:'romantique'}, 
+    {genre:'homme', niveau:'bouche', ambiance:'romantique'}, 
+    {genre:'femme', niveau:'bouche', ambiance:'romantique'}, 
+    {genre:'homme', niveau:'avance', ambiance:'romantique'}, {genre:'femme', niveau:'avance', ambiance:'romantique'}, {genre:'homme', niveau:'avance', ambiance:'romantique'}, {genre:'femme', niveau:'avance', ambiance:'romantique'}, {genre:'homme', niveau:'avance', ambiance:'romantique'}, {genre:'femme', niveau:'avance', ambiance:'romantique'} ], progressif: [ {genre:'homme', niveau:'mains', ambiance:'romantique'}, {genre:'femme', niveau:'mains', ambiance:'romantique'}, {genre:'homme', niveau:'mains', ambiance:'romantique'}, {genre:'femme', niveau:'mains', ambiance:'romantique'}, {genre:'homme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'femme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'homme', niveau:'bouche', ambiance:'romantique'}, {genre:'femme', niveau:'bouche', ambiance:'romantique'}, {genre:'homme', niveau:'bouche', ambiance:'mixed_dom'}, {genre:'femme', niveau:'bouche', ambiance:'mixed_dom'}, {genre:'homme', niveau:'bouche', ambiance:'mixed_dom'}, {genre:'femme', niveau:'bouche', ambiance:'mixed_dom'}, {genre:'homme', niveau:'avance', ambiance:'romantique'}, {genre:'femme', niveau:'avance', ambiance:'romantique'}, {genre:'homme', niveau:'avance', ambiance:'mixed_dom'}, {genre:'femme', niveau:'avance', ambiance:'mixed_dom'}, {genre:'homme', niveau:'avance', ambiance:'mixed_dom'}, {genre:'femme', niveau:'avance', ambiance:'mixed_dom'} ], bdsm: [ {genre:'homme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'homme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'homme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'homme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'femme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'femme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'femme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'femme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'femme', niveau:'bouche', ambiance:'mixed_dom'}, {genre:'femme', niveau:'bouche', ambiance:'mixed_dom'}, {genre:'femme', niveau:'bouche', ambiance:'mixed_dom'}, {genre:'homme', niveau:'bouche', ambiance:'mixed_dom'}, {genre:'homme', niveau:'bouche', ambiance:'mixed_dom'}, {genre:'homme', niveau:'bouche', ambiance:'mixed_dom'}, {genre:'homme', niveau:'avance', ambiance:'mixed_dom'}, {genre:'homme', niveau:'avance', ambiance:'mixed_dom'}, {genre:'femme', niveau:'avance', ambiance:'mixed_dom'}, {genre:'femme', niveau:'avance', ambiance:'mixed_dom'} ], domination: [ {genre:'homme', niveau:'mains', ambiance:'domination'}, {genre:'homme', niveau:'mains', ambiance:'domination'}, {genre:'homme', niveau:'mains', ambiance:'domination'}, {genre:'homme', niveau:'mains', ambiance:'domination'}, {genre:'femme', niveau:'mains', ambiance:'domination'}, {genre:'femme', niveau:'mains', ambiance:'domination'}, {genre:'femme', niveau:'mains', ambiance:'domination'}, {genre:'femme', niveau:'mains', ambiance:'domination'}, {genre:'femme', niveau:'bouche', ambiance:'domination'}, {genre:'femme', niveau:'bouche', ambiance:'domination'}, {genre:'femme', niveau:'bouche', ambiance:'domination'}, {genre:'homme', niveau:'bouche', ambiance:'domination'}, {genre:'homme', niveau:'bouche', ambiance:'domination'}, {genre:'homme', niveau:'bouche', ambiance:'domination'}, {genre:'homme', niveau:'avance', ambiance:'domination'}, {genre:'homme', niveau:'avance', ambiance:'domination'}, {genre:'femme', niveau:'avance', ambiance:'domination'}, {genre:'femme', niveau:'avance', ambiance:'domination'} ], bondage: [ {genre:'homme', niveau:'mains', ambiance:'bondage'}, {genre:'homme', niveau:'mains', ambiance:'bondage'}, {genre:'homme', niveau:'mains', ambiance:'bondage'}, {genre:'homme', niveau:'mains', ambiance:'bondage'}, {genre:'femme', niveau:'mains', ambiance:'bondage'}, {genre:'femme', niveau:'mains', ambiance:'bondage'}, {genre:'femme', niveau:'mains', ambiance:'bondage'}, {genre:'femme', niveau:'mains', ambiance:'bondage'}, {genre:'femme', niveau:'bouche', ambiance:'bondage'}, {genre:'femme', niveau:'bouche', ambiance:'bondage'}, {genre:'femme', niveau:'bouche', ambiance:'bondage'}, {genre:'homme', niveau:'bouche', ambiance:'bondage'}, {genre:'homme', niveau:'bouche', ambiance:'bondage'}, {genre:'homme', niveau:'bouche', ambiance:'bondage'}, {genre:'homme', niveau:'avance', ambiance:'bondage'}, {genre:'homme', niveau:'avance', ambiance:'bondage'}, {genre:'femme', niveau:'avance', ambiance:'bondage'}, {genre:'femme', niveau:'avance', ambiance:'bondage'} ], switch: [ {genre:'homme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'homme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'homme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'homme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'homme', niveau:'bouche', ambiance:'mixed_dom'}, {genre:'homme', niveau:'bouche', ambiance:'mixed_dom'}, {genre:'homme', niveau:'avance', ambiance:'mixed_dom'}, {genre:'homme', niveau:'avance', ambiance:'mixed_dom'}, {genre:'femme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'femme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'femme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'femme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'femme', niveau:'bouche', ambiance:'mixed_dom'}, {genre:'femme', niveau:'bouche', ambiance:'mixed_dom'}, {genre:'femme', niveau:'avance', ambiance:'mixed_dom'}, {genre:'femme', niveau:'avance', ambiance:'mixed_dom'} ] }
 
 // pick random ambiance
 function pickAmbiance(a){ return a==='mixed_dom'? (Math.random()<0.5?'domination':'bondage') : a }
@@ -168,3 +175,4 @@ if(applyParams()) startGame()
 </script>
 </body>
 </html>
+
