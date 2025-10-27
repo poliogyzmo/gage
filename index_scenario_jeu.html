@@ -23,7 +23,7 @@
       background: rgba(255,255,255,0.05);
       padding: 2rem;
       border-radius: 15px;
-      width: 320px;
+      width: 340px;
       display: flex;
       flex-direction: column;
       gap: 1rem;
@@ -33,13 +33,30 @@
       font-weight: bold;
       font-size: 0.9rem;
     }
-    input, select {
+    input[type="text"], select {
       width: 100%;
       padding: 8px;
       border: none;
       border-radius: 6px;
       background: rgba(255,255,255,0.9);
       font-size: 1rem;
+    }
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      margin-left: 10px;
+    }
+    .checkbox-group label {
+      font-weight: normal;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    input[type="checkbox"] {
+      transform: scale(1.2);
+      accent-color: #00ff99;
     }
     button {
       padding: 10px;
@@ -75,11 +92,13 @@
     </select>
 
     <label>Gages spéciaux joueur 1 :</label>
-    <select name="special1" required>
-      <option value="non">Non</option>
-      <option value="oui_sans_penetration">Oui mais sans pénétration</option>
-      <option value="oui">Oui</option>
-    </select>
+    <div class="checkbox-group" id="special1">
+      <label><input type="checkbox" value="non"> Non</label>
+      <label><input type="checkbox" value="langue">Avec la langue</label>
+      <label><input type="checkbox" value="doigt">Juste un doigt</label>
+      <label><input type="checkbox" value="jouet">Plug, gode, crochet</label>
+      <label><input type="checkbox" value="oui">Pénétration sexe ou gode ceinture</label>
+    </div>
 
     <hr style="width:100%;opacity:0.3;">
 
@@ -93,11 +112,13 @@
     </select>
 
     <label>Gages spéciaux joueur 2 :</label>
-    <select name="special2" required>
-      <option value="non">Non</option>
-      <option value="oui_sans_penetration">Oui mais sans pénétration</option>
-      <option value="oui">Oui</option>
-    </select>
+    <div class="checkbox-group" id="special2">
+      <label><input type="checkbox" value="non"> Non</label>
+      <label><input type="checkbox" value="langue">Avec la langue</label>
+      <label><input type="checkbox" value="doigt">Juste un doigt</label>
+      <label><input type="checkbox" value="jouet">Plug, gode, crochet</label>
+      <label><input type="checkbox" value="oui">Pénétration sexe ou gode ceinture</label>
+    </div>
 
     <hr style="width:100%;opacity:0.3;">
 
@@ -108,7 +129,7 @@
       <option value="progressif">Progressif (9 gages chacun)</option>
       <option value="bdsm">BDSM (9 gages chacun)</option>
       <option value="domination">Domination (9 gages chacun)</option>
-       <option value="bondage">Bondage (9 gages chacun)</option>
+      <option value="bondage">Bondage (9 gages chacun)</option>
       <option value="switch">Switch (8 gages chacun)</option>
     </select>
 
@@ -120,12 +141,20 @@
   <script>
     document.getElementById('formJeu').addEventListener('submit', e => {
       e.preventDefault();
-      const params = new URLSearchParams(new FormData(e.target)).toString();
+
+      const formData = new FormData(e.target);
+
+      // Récupération des cases cochées joueur 1
+      const special1 = [...document.querySelectorAll('#special1 input:checked')].map(cb => cb.value);
+      const special2 = [...document.querySelectorAll('#special2 input:checked')].map(cb => cb.value);
+
+      formData.append('special1', special1.join(','));
+      formData.append('special2', special2.join(','));
+
+      const params = new URLSearchParams(formData).toString();
       window.location.href = `jeu.html?${params}`;
     });
   </script>
 
 </body>
 </html>
-
-
