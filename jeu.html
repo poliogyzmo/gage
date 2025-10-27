@@ -16,12 +16,6 @@
   .btn.alt{background:#666;color:#fff}
   #progress{position:fixed;bottom:0;left:0;height:5px;background:var(--accent);width:0%;z-index:4;transition:width .4s ease}
   .status{position:fixed;top:12px;right:12px;background:rgba(255,255,255,0.06);padding:8px 10px;border-radius:8px;font-size:13px;z-index:5}
-  .input-group{position:fixed;top:12px;left:12px;z-index:6;background:rgba(0,0,0,0.85);padding:12px;border-radius:10px;max-width:340px;color:#ddd;}
-  .input-group input, .input-group select{width:100%;margin:6px 0;padding:8px;border-radius:6px;border:1px solid #333;background:#111;color:#fff}
-  .input-group label{font-size:13px;color:#bbb}
-  .checkbox-group{display:flex;flex-direction:column;gap:4px;margin:6px 0;}
-  .checkbox-group label{display:flex;align-items:center;gap:6px;font-size:13px;color:#ccc;}
-  .small-note{font-size:12px;color:#999;margin-top:6px}
 </style>
 </head>
 <body>
@@ -36,62 +30,15 @@
 
   <div id="progress"></div>
   <div class="status" id="status">Prêt</div>
-
-  <!-- INPUTS directement dans la page, pas de menu -->
-  <div class="input-group">
-    <label>Nom joueur 1</label>
-    <input id="joueur1" placeholder="Prénom..." />
-    <label>Genre joueur 1</label>
-    <select id="genre1"><option value="homme">Homme</option><option value="femme">Femme</option></select>
-    <label>Gages spéciaux joueur 1</label>
-    <div class="checkbox-group" id="specGroup1">
-      <label><input type="checkbox" value="non">Non</label>
-      <label><input type="checkbox" value="langue">Avec la langue</label>
-      <label><input type="checkbox" value="doigt">Juste un doigt</label>
-      <label><input type="checkbox" value="jouet">Plug, gode, crochet</label>
-      <label><input type="checkbox" value="oui">Pénétration (sexe ou gode-ceinture)</label>
-    </div>
-
-    <hr style="border:none;height:1px;background:#222;margin:8px 0" />
-
-    <label>Nom joueur 2</label>
-    <input id="joueur2" placeholder="Prénom..." />
-    <label>Genre joueur 2</label>
-    <select id="genre2"><option value="homme">Homme</option><option value="femme">Femme</option></select>
-    <label>Gages spéciaux joueur 2</label>
-    <div class="checkbox-group" id="specGroup2">
-      <label><input type="checkbox" value="non">Non</label>
-      <label><input type="checkbox" value="langue">Avec la langue</label>
-      <label><input type="checkbox" value="doigt">Juste un doigt</label>
-      <label><input type="checkbox" value="jouet">Plug, gode, crochet</label>
-      <label><input type="checkbox" value="oui">Pénétration (sexe ou gode-ceinture)</label>
-    </div>
-
-    <hr style="border:none;height:1px;background:#222;margin:8px 0" />
-
-    <label>Scénario</label>
-    <select id="scenario">
-      <option value="soft_court">Soft court (4 gages chacun)</option>
-      <option value="soft_long">Soft long (9 gages chacun)</option>
-      <option value="progressif">Progressif (9 gages chacun)</option>
-      <option value="bdsm">BDSM</option>
-      <option value="domination">Domination</option>
-      <option value="bondage">Bondage</option>
-      <option value="switch">Switch</option>
-    </select>
-
-    <div class="small-note">Tous les gages se déroulent à l'intérieur.</div>
-    <button id="startBtn" style="margin-top:8px;background:var(--accent);border:none;padding:8px;border-radius:8px;cursor:pointer">Démarrer</button>
-  </div>
 </div>
 
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
 const SUPABASE_URL = 'https://yqqhvanwoxmnakmzaqya.supabase.co'
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlxcWh2YW53b3htbmFrbXphcXlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA1MjA4NzYsImV4cCI6MjA3NjA5Njg3Nn0.eEHQBsTKNP9_nQ6LqFBjVgx_9WX9pY1uyX7xaedvn0o'
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
-const startBtn = document.getElementById('startBtn')
 const texteDiv = document.getElementById('texte')
 const gifImg = document.getElementById('gif')
 const nextBtn = document.getElementById('nextBtn')
@@ -104,157 +51,141 @@ let index = 0
 const usedIds = new Set()
 let player1 = {}, player2 = {}, scenario = ''
 
-// utilitaire pour lire checkbox cochées
-function getCheckedValues(groupId) {
-  return [...document.querySelectorAll(`#${groupId} input[type=checkbox]:checked`)]
-         .map(cb => cb.value)
+// lecture des paramètres depuis URL
+function readParams() {
+  const qs = Object.fromEntries(new URL(location.href).searchParams.entries())
+  return {
+    joueur1: qs.joueur1 || '',
+    genre1: qs.genre1 || 'femme',
+    specials1: qs.special1 ? qs.special1.split(',') : ['non'],
+    joueur2: qs.joueur2 || '',
+    genre2: qs.genre2 || 'homme',
+    specials2: qs.special2 ? qs.special2.split(',') : ['non'],
+    scenario: qs.scenario || 'soft_court'
+  }
 }
 
-// fetch candidats depuis Supabase
+// fetch candidats Supabase avec filtre sur gage spécial multiple
 async function fetchCandidates({genre, niveau, ambiance, specials}) {
-  const query = supabase
+  const { data, error } = await supabase
     .from('gages')
     .select('*')
-    .eq('lieu', 'interieur')
+    .eq('lieu','interieur')
     .or(`genre.eq.${genre},genre.eq.mixte`)
     .eq('niveau', niveau)
     .in('ambiance', [ambiance])
     .limit(500)
-  const { data, error } = await query
-  if (error) throw error
-  if (!data?.length) return []
+
+  if(error){console.error(error); return []}
+  if(!data?.length) return []
 
   const filtered = data.filter(g => {
-    if (!g.type_special) return specials.includes('non')
+    if(!g.type_special) return specials.includes('non')
     return specials.includes(g.type_special)
   })
   return filtered.length ? filtered : data
 }
 
-function pickUnique(cands) {
+// picker unique en évitant répétition
+function pickUnique(cands){
   const avail = cands.filter(c => !usedIds.has(c.id))
   return avail.length ? avail[Math.floor(Math.random()*avail.length)] : cands[Math.floor(Math.random()*cands.length)]
 }
 
-// SCENARIOS
-const SCENARIOS = {
-  soft_court: [ 
-    {genre:'homme', niveau:'mains', ambiance:'romantique'}, 
-    {genre:'femme', niveau:'mains', ambiance:'romantique'}, 
-    {genre:'homme', niveau:'mains', ambiance:'romantique'}, 
-    {genre:'femme', niveau:'mains', ambiance:'romantique'}, 
-    {genre:'homme', niveau:'bouche', ambiance:'romantique'}, 
-    {genre:'femme', niveau:'bouche', ambiance:'romantique'}, 
-    {genre:'homme', niveau:'avance', ambiance:'romantique'}, 
-    {genre:'femme', niveau:'avance', ambiance:'romantique'} ], 
-  
-  soft_long: [ 
-    {genre:'homme', niveau:'mains', ambiance:'romantique'}, 
-    {genre:'femme', niveau:'mains', ambiance:'romantique'}, 
-    {genre:'homme', niveau:'mains', ambiance:'romantique'}, 
-    {genre:'femme', niveau:'mains', ambiance:'romantique'}, 
-    {genre:'homme', niveau:'mains', ambiance:'romantique'}, 
-    {genre:'femme', niveau:'mains', ambiance:'romantique'}, 
-    {genre:'homme', niveau:'bouche', ambiance:'romantique'}, 
-    {genre:'femme', niveau:'bouche', ambiance:'romantique'}, 
-    {genre:'homme', niveau:'bouche', ambiance:'romantique'}, 
-    {genre:'femme', niveau:'bouche', ambiance:'romantique'}, 
-    {genre:'homme', niveau:'bouche', ambiance:'romantique'}, 
-    {genre:'femme', niveau:'bouche', ambiance:'romantique'}, 
-    {genre:'homme', niveau:'avance', ambiance:'romantique'}, 
-{genre:'femme', niveau:'avance', ambiance:'romantique'}, 
-{genre:'homme', niveau:'avance', ambiance:'romantique'}, 
-{genre:'femme', niveau:'avance', ambiance:'romantique'}, 
-{genre:'homme', niveau:'avance', ambiance:'romantique'}, 
-{genre:'femme', niveau:'avance', ambiance:'romantique'} ], 
-
-progressif: [ 
-{genre:'homme', niveau:'mains', ambiance:'romantique'}, 
-{genre:'femme', niveau:'mains', ambiance:'romantique'}, 
-{genre:'homme', niveau:'mains', ambiance:'romantique'}, 
-{genre:'femme', niveau:'mains', ambiance:'romantique'}, 
-{genre:'homme', niveau:'mains', ambiance:'mixed_dom'}, 
-{genre:'femme', niveau:'mains', ambiance:'mixed_dom'}, 
-{genre:'homme', niveau:'bouche', ambiance:'romantique'}, 
-{genre:'femme', niveau:'bouche', ambiance:'romantique'}, 
-{genre:'homme', niveau:'bouche', ambiance:'mixed_dom'},
- {genre:'femme', niveau:'bouche', ambiance:'mixed_dom'},
- {genre:'homme', niveau:'bouche', ambiance:'mixed_dom'},
- {genre:'femme', niveau:'bouche', ambiance:'mixed_dom'},
- {genre:'homme', niveau:'avance', ambiance:'romantique'}, 
-{genre:'femme', niveau:'avance', ambiance:'romantique'},
- {genre:'homme', niveau:'avance', ambiance:'mixed_dom'},
- {genre:'femme', niveau:'avance', ambiance:'mixed_dom'},
- {genre:'homme', niveau:'avance', ambiance:'mixed_dom'},
- {genre:'femme', niveau:'avance', ambiance:'mixed_dom'} ],
-
- bdsm: [ 
-{genre:'homme', niveau:'mains', ambiance:'mixed_dom'},
- {genre:'homme', niveau:'mains', ambiance:'mixed_dom'},
- {genre:'homme', niveau:'mains', ambiance:'mixed_dom'},
- {genre:'homme', niveau:'mains', ambiance:'mixed_dom'},
- {genre:'femme', niveau:'mains', ambiance:'mixed_dom'}, 
-{genre:'femme', niveau:'mains', ambiance:'mixed_dom'},
- {genre:'femme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'femme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'femme', niveau:'bouche', ambiance:'mixed_dom'}, {genre:'femme', niveau:'bouche', ambiance:'mixed_dom'}, {genre:'femme', niveau:'bouche', ambiance:'mixed_dom'}, {genre:'homme', niveau:'bouche', ambiance:'mixed_dom'}, {genre:'homme', niveau:'bouche', ambiance:'mixed_dom'}, {genre:'homme', niveau:'bouche', ambiance:'mixed_dom'}, {genre:'homme', niveau:'avance', ambiance:'mixed_dom'}, {genre:'homme', niveau:'avance', ambiance:'mixed_dom'}, {genre:'femme', niveau:'avance', ambiance:'mixed_dom'}, {genre:'femme', niveau:'avance', ambiance:'mixed_dom'} ], domination: [ {genre:'homme', niveau:'mains', ambiance:'domination'}, {genre:'homme', niveau:'mains', ambiance:'domination'}, {genre:'homme', niveau:'mains', ambiance:'domination'}, {genre:'homme', niveau:'mains', ambiance:'domination'}, {genre:'femme', niveau:'mains', ambiance:'domination'}, {genre:'femme', niveau:'mains', ambiance:'domination'}, {genre:'femme', niveau:'mains', ambiance:'domination'}, {genre:'femme', niveau:'mains', ambiance:'domination'}, {genre:'femme', niveau:'bouche', ambiance:'domination'}, {genre:'femme', niveau:'bouche', ambiance:'domination'}, {genre:'femme', niveau:'bouche', ambiance:'domination'}, {genre:'homme', niveau:'bouche', ambiance:'domination'}, {genre:'homme', niveau:'bouche', ambiance:'domination'}, {genre:'homme', niveau:'bouche', ambiance:'domination'}, {genre:'homme', niveau:'avance', ambiance:'domination'}, {genre:'homme', niveau:'avance', ambiance:'domination'}, {genre:'femme', niveau:'avance', ambiance:'domination'}, {genre:'femme', niveau:'avance', ambiance:'domination'} ], bondage: [ {genre:'homme', niveau:'mains', ambiance:'bondage'}, {genre:'homme', niveau:'mains', ambiance:'bondage'}, {genre:'homme', niveau:'mains', ambiance:'bondage'}, {genre:'homme', niveau:'mains', ambiance:'bondage'}, {genre:'femme', niveau:'mains', ambiance:'bondage'}, {genre:'femme', niveau:'mains', ambiance:'bondage'}, {genre:'femme', niveau:'mains', ambiance:'bondage'}, {genre:'femme', niveau:'mains', ambiance:'bondage'}, {genre:'femme', niveau:'bouche', ambiance:'bondage'}, {genre:'femme', niveau:'bouche', ambiance:'bondage'}, {genre:'femme', niveau:'bouche', ambiance:'bondage'}, {genre:'homme', niveau:'bouche', ambiance:'bondage'}, {genre:'homme', niveau:'bouche', ambiance:'bondage'}, {genre:'homme', niveau:'bouche', ambiance:'bondage'}, {genre:'homme', niveau:'avance', ambiance:'bondage'}, {genre:'homme', niveau:'avance', ambiance:'bondage'}, {genre:'femme', niveau:'avance', ambiance:'bondage'}, {genre:'femme', niveau:'avance', ambiance:'bondage'} ], switch: [ {genre:'homme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'homme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'homme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'homme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'homme', niveau:'bouche', ambiance:'mixed_dom'}, {genre:'homme', niveau:'bouche', ambiance:'mixed_dom'}, {genre:'homme', niveau:'avance', ambiance:'mixed_dom'}, {genre:'homme', niveau:'avance', ambiance:'mixed_dom'}, {genre:'femme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'femme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'femme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'femme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'femme', niveau:'bouche', ambiance:'mixed_dom'}, {genre:'femme', niveau:'bouche', ambiance:'mixed_dom'}, {genre:'femme', niveau:'avance', ambiance:'mixed_dom'}, {genre:'femme', niveau:'avance', ambiance:'mixed_dom'} ] }
-
-
-function pickAmbiance(a){
-  if(a==='mixed_dom') return Math.random()<0.5?'domination':'bondage'
-  return a
-}
-
-async function buildSequence(scenarioName, players){
-  const pattern = SCENARIOS[scenarioName]
-  const seq = []
-  for(const step of pattern){
-    const amb = pickAmbiance(step.ambiance)
-    let target = players[0].genre === step.genre ? players[0] : players[1]
-    const candidates = await fetchCandidates({genre:step.genre,niveau:step.niveau,ambiance:amb,specials:target.specials})
-    const chosen = pickUnique(candidates)
-    if(chosen) usedIds.add(chosen.id)
-    seq.push({...chosen, requestedAmbiance:amb})
-  }
-  return seq
-}
-
+// gestion de l'affichage
 function renderCurrent(){
   const g = sequence[index]
   if(!g){texteDiv.textContent='Aucun gage';gifImg.src='';return}
-  texteDiv.textContent = `${g.texte || '—'}`
+
+  // déterminer le nom du joueur cible (opposé au genre du gage)
+  let partnerName = ''
+  if(g.genre === player1.genre && player2.name) partnerName = player2.name
+  else if(g.genre === player2.genre && player1.name) partnerName = player1.name
+  else partnerName = player1.name || player2.name
+
+  texteDiv.textContent = `${partnerName} : ${g.texte || '—'}`
   gifImg.src = g.gif_url || ''
   progressBar.style.width = `${Math.round(((index+1)/sequence.length)*100)}%`
   status.textContent = `Gage ${index+1}/${sequence.length}`
 }
 
-// changer gage autant de fois que nécessaire
+// construire la séquence
+async function buildSequence(scenarioName, players){
+  // patterns simples pour exemple
+  const SCENARIOS = {
+    soft_court: [
+      {genre:'homme', niveau:1, ambiance:'soft'},
+      {genre:'femme', niveau:1, ambiance:'soft'},
+      {genre:'homme', niveau:2, ambiance:'soft'},
+      {genre:'femme', niveau:2, ambiance:'soft'}
+    ],
+    soft_long: Array.from({length:8}, (_,i)=>({
+      genre:i%2?'homme':'femme',
+      niveau:Math.floor(i/2)+1,
+      ambiance:'soft'
+    }))
+  }
+
+  const pattern = SCENARIOS[scenarioName] || SCENARIOS.soft_court
+  const seq = []
+
+  for(const step of pattern){
+    const target = step.genre === player1.genre ? player1 : player2
+    const candidates = await fetchCandidates({
+      genre: step.genre,
+      niveau: step.niveau,
+      ambiance: step.ambiance,
+      specials: target.specials
+    })
+    const chosen = pickUnique(candidates)
+    if(chosen) usedIds.add(chosen.id)
+    seq.push({...chosen, requestedAmbiance: step.ambiance})
+  }
+  return seq
+}
+
+// navigation
+nextBtn.onclick = () => {
+  if(index < sequence.length-1){index++;renderCurrent()}
+  else{status.textContent='Fin 🎉';texteDiv.textContent='🎉 Fin du jeu';gifImg.src=''}
+}
+
+// changer gage (plusieurs fois possible)
 changeBtn.onclick = async () => {
   const g = sequence[index]
-  const target = g.genre===player1.genre?player1:player2
-  if(g.id) usedIds.delete(g.id)
-  const cands = await fetchCandidates({genre:g.genre,niveau:g.niveau,ambiance:g.requestedAmbiance,specials:target.specials})
-  if(!cands.length){status.textContent='Aucun autre gage dispo'; return}
+  const target = g.genre === player1.genre ? player1 : player2
+  const cands = await fetchCandidates({
+    genre:g.genre,
+    niveau:g.niveau,
+    ambiance:g.requestedAmbiance,
+    specials:target.specials
+  })
   const newG = pickUnique(cands)
-  if(newG){usedIds.add(newG.id); sequence[index]={...newG,requestedAmbiance:g.requestedAmbiance}; renderCurrent()}
+  if(newG){usedIds.add(newG.id);sequence[index]=newG;renderCurrent()}
 }
 
-// bouton suivant
-nextBtn.onclick = () => {
-  if(index<sequence.length-1){index++; renderCurrent()}
-  else{status.textContent='Fin de la partie 🎉'; texteDiv.textContent='🎉 Fin du jeu'; gifImg.src=''}
-}
-
-// démarrer le jeu
-startBtn.onclick = async () => {
-  const j1=document.getElementById('joueur1').value.trim()
-  const j2=document.getElementById('joueur2').value.trim()
-  if(!j1||!j2)return alert('Renseigne les prénoms')
-  player1={name:j1,genre:document.getElementById('genre1').value,specials:getCheckedValues('specGroup1')}
-  player2={name:j2,genre:document.getElementById('genre2').value,specials:getCheckedValues('specGroup2')}
-  scenario=document.getElementById('scenario').value
-  index=0; usedIds.clear(); status.textContent='Génération des gages...'
-  sequence=await buildSequence(scenario,[player1,player2])
+// initialisation
+async function startGame(){
+  const params = readParams()
+  player1 = {
+    name: params.joueur1,
+    genre: params.genre1,
+    specials: params.specials1
+  }
+  player2 = {
+    name: params.joueur2,
+    genre: params.genre2,
+    specials: params.specials2
+  }
+  scenario = params.scenario
+  index = 0
+  usedIds.clear()
+  status.textContent = 'Génération des gages...'
+  sequence = await buildSequence(scenario, [player1, player2])
   renderCurrent()
 }
+
+startGame()
 </script>
 </body>
 </html>
