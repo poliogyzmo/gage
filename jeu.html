@@ -16,78 +16,21 @@
   .btn.alt{background:#666;color:#fff}
   #progress{position:fixed;bottom:0;left:0;height:5px;background:var(--accent);width:0%;z-index:4;transition:width .4s ease}
   .status{position:fixed;top:12px;right:12px;background:rgba(255,255,255,0.06);padding:8px 10px;border-radius:8px;font-size:13px;z-index:5}
-  .menu-toggle{position:fixed;top:12px;left:12px;z-index:6;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,0.06);cursor:pointer}
-  .menu{position:fixed;top:56px;left:12px;z-index:6;background:rgba(0,0,0,0.85);padding:12px;border-radius:10px;max-width:340px;color:#ddd;display:none}
-  .menu.visible{display:block}
-  .menu input, .menu select{width:100%;margin:6px 0;padding:8px;border-radius:6px;border:1px solid #333;background:#111;color:#fff}
-  .menu label{font-size:13px;color:#bbb}
-  .checkbox-group{display:flex;flex-direction:column;gap:4px;margin:6px 0;}
-  .checkbox-group label{display:flex;align-items:center;gap:6px;font-size:13px;color:#ccc;}
-  .small-note{font-size:12px;color:#999;margin-top:6px}
 </style>
 </head>
 <body>
   <div class="app">
     <img id="gif" src="" alt="gif"/>
-    <div id="texte">Charge... appuyez sur Démarrer</div>
+    <div id="texte">Chargement... appuyez sur Démarrer</div>
 
     <div class="controls">
       <button id="changeBtn" class="btn alt">🔄 Changer</button>
       <button id="nextBtn" class="btn">⏭ Suivant</button>
+      <button id="backBtn" class="btn alt">🏠 Retour</button>
     </div>
 
     <div id="progress"></div>
-
     <div class="status" id="status">Prêt</div>
-    <button class="menu-toggle" id="menuToggle">⚙️</button>
-
-    <div class="menu" id="menu">
-      <label>Nom joueur 1</label>
-      <input id="joueur1" placeholder="Prénom..." />
-      <label>Genre joueur 1</label>
-      <select id="genre1"><option value="homme">Homme</option><option value="femme">Femme</option></select>
-
-      <label>Gages spéciaux joueur 1</label>
-      <div class="checkbox-group" id="specGroup1">
-        <label><input type="checkbox" value="non">Non</label>
-        <label><input type="checkbox" value="langue">Avec la langue</label>
-        <label><input type="checkbox" value="doigt">Juste un doigt</label>
-        <label><input type="checkbox" value="jouet">Plug, gode, crochet</label>
-        <label><input type="checkbox" value="oui">Pénétration (sexe ou gode-ceinture)</label>
-      </div>
-
-      <hr style="border:none;height:1px;background:#222;margin:8px 0" />
-
-      <label>Nom joueur 2</label>
-      <input id="joueur2" placeholder="Prénom..." />
-      <label>Genre joueur 2</label>
-      <select id="genre2"><option value="homme">Homme</option><option value="femme">Femme</option></select>
-
-      <label>Gages spéciaux joueur 2</label>
-      <div class="checkbox-group" id="specGroup2">
-        <label><input type="checkbox" value="non">Non</label>
-        <label><input type="checkbox" value="langue">Avec la langue</label>
-        <label><input type="checkbox" value="doigt">Juste un doigt</label>
-        <label><input type="checkbox" value="jouet">Plug, gode, crochet</label>
-        <label><input type="checkbox" value="oui">Pénétration (sexe ou gode-ceinture)</label>
-      </div>
-
-      <hr style="border:none;height:1px;background:#222;margin:8px 0" />
-
-      <label>Scénario</label>
-      <select id="scenario">
-        <option value="soft_court">Soft court (4 gages chacun)</option>
-        <option value="soft_long">Soft long (9 gages chacun)</option>
-        <option value="progressif">Progressif (9 gages chacun)</option>
-        <option value="bdsm">BDSM</option>
-        <option value="domination">Domination</option>
-        <option value="bondage">Bondage</option>
-        <option value="switch">Switch</option>
-      </select>
-
-      <div class="small-note">Tous les gages se déroulent à l'intérieur.</div>
-      <button id="startBtn" style="margin-top:8px;background:var(--accent);border:none;padding:8px;border-radius:8px;cursor:pointer">Démarrer</button>
-    </div>
   </div>
 
 <script type="module">
@@ -96,13 +39,11 @@ const SUPABASE_URL = 'https://yqqhvanwoxmnakmzaqya.supabase.co'
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlxcWh2YW53b3htbmFrbXphcXlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA1MjA4NzYsImV4cCI6MjA3NjA5Njg3Nn0.eEHQBsTKNP9_nQ6LqFBjVgx_9WX9pY1uyX7xaedvn0o'
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
-const menu = document.getElementById('menu')
-const menuToggle = document.getElementById('menuToggle')
-const startBtn = document.getElementById('startBtn')
 const texteDiv = document.getElementById('texte')
 const gifImg = document.getElementById('gif')
 const nextBtn = document.getElementById('nextBtn')
 const changeBtn = document.getElementById('changeBtn')
+const backBtn = document.getElementById('backBtn')
 const progressBar = document.getElementById('progress')
 const status = document.getElementById('status')
 
@@ -111,15 +52,36 @@ let index = 0
 const usedIds = new Set()
 let player1 = {}, player2 = {}, scenario = ''
 
-menuToggle.onclick = () => menu.classList.toggle('visible')
-
-// helper : lit les checkbox cochées
-function getCheckedValues(groupId) {
-  return [...document.querySelectorAll(`#${groupId} input[type=checkbox]:checked`)]
-         .map(cb => cb.value)
+// bouton retour vers index_scenario_jeu.html
+backBtn.onclick = () => {
+  window.location.href = 'index_scenario_jeu.html'
 }
 
-// --- FONCTION DE RECHERCHE DES GAGES ---
+// --- helpers ---
+function getQueryParams() {
+  const params = new URLSearchParams(window.location.search)
+  const obj = {}
+  for (const [k,v] of params.entries()) obj[k] = v
+  return obj
+}
+
+function applyParams() {
+  const p = getQueryParams()
+  if (!p.joueur1) return
+  player1 = {
+    name: p.joueur1,
+    genre: p.genre1 || 'homme',
+    specials: p.special1 ? p.special1.split(',') : ['non']
+  }
+  player2 = {
+    name: p.joueur2,
+    genre: p.genre2 || 'femme',
+    specials: p.special2 ? p.special2.split(',') : ['non']
+  }
+  scenario = p.scenario || 'soft_court'
+}
+applyParams()
+
 async function fetchCandidates({genre, niveau, ambiance, specials}) {
   const query = supabase
     .from('gages')
@@ -134,7 +96,6 @@ async function fetchCandidates({genre, niveau, ambiance, specials}) {
   if (error) throw error
   if (!data?.length) return []
 
-  // filtre selon les préférences multiples
   const filtered = data.filter(g => {
     if (!g.type_special) return specials.includes('non')
     return specials.includes(g.type_special)
@@ -149,63 +110,72 @@ function pickUnique(cands){
 
 // --- SCENARIOS ---
 const SCENARIOS = {
-  soft_court: [
-    {genre:'femme', niveau:1, ambiance:'soft'},
-    {genre:'homme', niveau:1, ambiance:'soft'},
-    {genre:'femme', niveau:2, ambiance:'soft'},
-    {genre:'homme', niveau:2, ambiance:'soft'},
-    {genre:'femme', niveau:3, ambiance:'soft'},
-    {genre:'homme', niveau:3, ambiance:'soft'},
-    {genre:'femme', niveau:4, ambiance:'soft'},
-    {genre:'homme', niveau:4, ambiance:'soft'}
-  ],
-  soft_long: Array.from({length:18}, (_,i)=>({
-    genre:i%2?'homme':'femme',
-    niveau:Math.ceil((i+1)/2),
-    ambiance:'soft'
-  })),
-  progressif: Array.from({length:18}, (_,i)=>({
-    genre:i%2?'homme':'femme',
-    niveau:Math.ceil((i+1)/2),
-    ambiance:i<6?'soft':(i<12?'moyen':'hard')
-  })),
-  bdsm: Array.from({length:18}, (_,i)=>({
-    genre:i%2?'homme':'femme',
-    niveau:Math.ceil((i+1)/2),
-    ambiance:'bondage'
-  })),
-  domination: Array.from({length:18}, (_,i)=>({
-    genre:i%2?'homme':'femme',
-    niveau:Math.ceil((i+1)/2),
-    ambiance:'domination'
-  })),
-  bondage: Array.from({length:18}, (_,i)=>({
-    genre:i%2?'homme':'femme',
-    niveau:Math.ceil((i+1)/2),
-    ambiance:'bondage'
-  })),
-  switch: Array.from({length:16}, (_,i)=>({
-    genre:i%2?'homme':'femme',
-    niveau:Math.ceil((i+1)/2),
-    ambiance:i%4<2?'domination':'bondage'
-  }))
-}
-
-function pickAmbiance(a){
-  if(a === 'mixed_dom') return Math.random() < 0.5 ? 'domination' : 'bondage'
-  return a
-}
+  soft_court: [ 
+    {genre:'homme', niveau:'mains', ambiance:'romantique'}, 
+    {genre:'femme', niveau:'mains', ambiance:'romantique'}, 
+    {genre:'homme', niveau:'mains', ambiance:'romantique'}, 
+    {genre:'femme', niveau:'mains', ambiance:'romantique'}, 
+    {genre:'homme', niveau:'bouche', ambiance:'romantique'}, 
+    {genre:'femme', niveau:'bouche', ambiance:'romantique'}, 
+    {genre:'homme', niveau:'avance', ambiance:'romantique'}, 
+    {genre:'femme', niveau:'avance', ambiance:'romantique'} ], 
+  
+  soft_long: [ 
+    {genre:'homme', niveau:'mains', ambiance:'romantique'}, 
+    {genre:'femme', niveau:'mains', ambiance:'romantique'}, 
+    {genre:'homme', niveau:'mains', ambiance:'romantique'}, 
+    {genre:'femme', niveau:'mains', ambiance:'romantique'}, 
+    {genre:'homme', niveau:'mains', ambiance:'romantique'}, 
+    {genre:'femme', niveau:'mains', ambiance:'romantique'}, 
+    {genre:'homme', niveau:'bouche', ambiance:'romantique'}, 
+    {genre:'femme', niveau:'bouche', ambiance:'romantique'}, 
+    {genre:'homme', niveau:'bouche', ambiance:'romantique'}, 
+    {genre:'femme', niveau:'bouche', ambiance:'romantique'}, 
+    {genre:'homme', niveau:'bouche', ambiance:'romantique'}, 
+    {genre:'femme', niveau:'bouche', ambiance:'romantique'}, 
+    {genre:'homme', niveau:'avance', ambiance:'romantique'}, 
+    {genre:'femme', niveau:'avance', ambiance:'romantique'} 
+    {genre:'homme', niveau:'avance', ambiance:'romantique'}, 
+  {genre:'femme', niveau:'avance', ambiance:'romantique'} 
+  {genre:'homme', niveau:'avance', ambiance:'romantique'}, 
+  {genre:'femme', niveau:'avance', ambiance:'romantique'} ], 
+  
+  progressif: [ 
+    {genre:'homme', niveau:'mains', ambiance:'romantique'}, 
+    {genre:'femme', niveau:'mains', ambiance:'romantique'}, 
+    {genre:'homme', niveau:'mains', ambiance:'romantique'}, 
+    {genre:'femme', niveau:'mains', ambiance:'romantique'}, 
+    {genre:'homme', niveau:'mains', ambiance:'mixed_dom'}, 
+    {genre:'femme', niveau:'mains', ambiance:'mixed_dom'}, 
+    {genre:'homme', niveau:'bouche', ambiance:'romantique'}, 
+    {genre:'femme', niveau:'bouche', ambiance:'romantique'}, 
+    {genre:'homme', niveau:'bouche', ambiance:'mixed_dom'}, 
+    {genre:'femme', niveau:'bouche', ambiance:'mixed_dom'}, 
+    {genre:'homme', niveau:'bouche', ambiance:'mixed_dom'}, 
+    {genre:'femme', niveau:'bouche', ambiance:'mixed_dom'}, 
+    {genre:'homme', niveau:'avance', ambiance:'romantique'}, 
+    {genre:'femme', niveau:'avance', ambiance:'romantique'}, 
+    {genre:'homme', niveau:'avance', ambiance:'mixed_dom'}, 
+    {genre:'femme', niveau:'avance', ambiance:'mixed_dom'} 
+    {genre:'homme', niveau:'avance', ambiance:'mixed_dom'}, 
+  {genre:'femme', niveau:'avance', ambiance:'mixed_dom'} ], 
+  
+  bdsm: [ 
+    {genre:'homme', niveau:'mains', ambiance:'mixed_dom'}, 
+    {genre:'homme', niveau:'mains', ambiance:'mixed_dom'}, 
+    {genre:'homme', niveau:'mains', ambiance:'mixed_dom'}, 
+    {genre:'homme', niveau:'mains', ambiance:'mixed_dom'}, 
+    {genre:'femme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'femme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'femme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'femme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'femme', niveau:'bouche', ambiance:'mixed_dom'}, {genre:'femme', niveau:'bouche', ambiance:'mixed_dom'}, {genre:'femme', niveau:'bouche', ambiance:'mixed_dom'}, {genre:'homme', niveau:'bouche', ambiance:'mixed_dom'}, {genre:'homme', niveau:'bouche', ambiance:'mixed_dom'}, {genre:'homme', niveau:'bouche', ambiance:'mixed_dom'}, {genre:'homme', niveau:'avance', ambiance:'mixed_dom'}, {genre:'homme', niveau:'avance', ambiance:'mixed_dom'}, {genre:'femme', niveau:'avance', ambiance:'mixed_dom'}, {genre:'femme', niveau:'avance', ambiance:'mixed_dom'} ], domination: [ {genre:'homme', niveau:'mains', ambiance:'domination'}, {genre:'homme', niveau:'mains', ambiance:'domination'}, {genre:'homme', niveau:'mains', ambiance:'domination'}, {genre:'homme', niveau:'mains', ambiance:'domination'}, {genre:'femme', niveau:'mains', ambiance:'domination'}, {genre:'femme', niveau:'mains', ambiance:'domination'}, {genre:'femme', niveau:'mains', ambiance:'domination'}, {genre:'femme', niveau:'mains', ambiance:'domination'}, {genre:'femme', niveau:'bouche', ambiance:'domination'}, {genre:'femme', niveau:'bouche', ambiance:'domination'}, {genre:'femme', niveau:'bouche', ambiance:'domination'}, {genre:'homme', niveau:'bouche', ambiance:'domination'}, {genre:'homme', niveau:'bouche', ambiance:'domination'}, {genre:'homme', niveau:'bouche', ambiance:'domination'}, {genre:'homme', niveau:'avance', ambiance:'domination'}, {genre:'homme', niveau:'avance', ambiance:'domination'}, {genre:'femme', niveau:'avance', ambiance:'domination'}, {genre:'femme', niveau:'avance', ambiance:'domination'} ], bondage: [ {genre:'homme', niveau:'mains', ambiance:'bondage'}, {genre:'homme', niveau:'mains', ambiance:'bondage'}, {genre:'homme', niveau:'mains', ambiance:'bondage'}, {genre:'homme', niveau:'mains', ambiance:'bondage'}, {genre:'femme', niveau:'mains', ambiance:'bondage'}, {genre:'femme', niveau:'mains', ambiance:'bondage'}, {genre:'femme', niveau:'mains', ambiance:'bondage'}, {genre:'femme', niveau:'mains', ambiance:'bondage'}, {genre:'femme', niveau:'bouche', ambiance:'bondage'}, {genre:'femme', niveau:'bouche', ambiance:'bondage'}, {genre:'femme', niveau:'bouche', ambiance:'bondage'}, {genre:'homme', niveau:'bouche', ambiance:'bondage'}, {genre:'homme', niveau:'bouche', ambiance:'bondage'}, {genre:'homme', niveau:'bouche', ambiance:'bondage'}, {genre:'homme', niveau:'avance', ambiance:'bondage'}, {genre:'homme', niveau:'avance', ambiance:'bondage'}, {genre:'femme', niveau:'avance', ambiance:'bondage'}, {genre:'femme', niveau:'avance', ambiance:'bondage'} ], switch: [ {genre:'homme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'homme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'homme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'homme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'homme', niveau:'bouche', ambiance:'mixed_dom'}, {genre:'homme', niveau:'bouche', ambiance:'mixed_dom'}, {genre:'homme', niveau:'avance', ambiance:'mixed_dom'}, {genre:'homme', niveau:'avance', ambiance:'mixed_dom'}, {genre:'femme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'femme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'femme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'femme', niveau:'mains', ambiance:'mixed_dom'}, {genre:'femme', niveau:'bouche', ambiance:'mixed_dom'}, {genre:'femme', niveau:'bouche', ambiance:'mixed_dom'}, {genre:'femme', niveau:'avance', ambiance:'mixed_dom'}, {genre:'femme', niveau:'avance', ambiance:'mixed_dom'} ] }
 
 async function buildSequence(scenarioName, players){
-  const pattern = SCENARIOS[scenarioName]
+  const pattern = SCENARIOS[scenarioName] || SCENARIOS['soft_court']
   const seq = []
   for(const step of pattern){
-    const amb = pickAmbiance(step.ambiance)
     const target = players[Math.floor(Math.random()*2)]
-    const candidates = await fetchCandidates({genre:target.genre, niveau:step.niveau, ambiance:amb, specials:target.specials})
+    const candidates = await fetchCandidates({genre:target.genre, niveau:step.niveau, ambiance:step.ambiance, specials:target.specials})
     const chosen = pickUnique(candidates)
     if(chosen) usedIds.add(chosen.id)
-    seq.push({...chosen, requestedAmbiance:amb})
+    seq.push(chosen)
   }
   return seq
 }
@@ -219,6 +189,15 @@ function renderCurrent(){
   status.textContent = `Gage ${index+1}/${sequence.length}`
 }
 
+// --- lancement automatique ---
+async function startGame() {
+  index = 0; usedIds.clear()
+  status.textContent='Chargement...'
+  sequence = await buildSequence(scenario,[player1,player2])
+  renderCurrent()
+}
+startGame()
+
 nextBtn.onclick = () => {
   if(index < sequence.length-1){index++;renderCurrent()}
   else{status.textContent='Fin 🎉';texteDiv.textContent='🎉 Fin du jeu';gifImg.src=''}
@@ -227,23 +206,9 @@ nextBtn.onclick = () => {
 changeBtn.onclick = async () => {
   const cur = sequence[index]
   const target = Math.random() < 0.5 ? player1 : player2
-  const candidates = await fetchCandidates({genre:cur.genre,niveau:cur.niveau,ambiance:cur.requestedAmbiance,specials:target.specials})
+  const candidates = await fetchCandidates({genre:cur.genre,niveau:cur.niveau,ambiance:cur.ambiance,specials:target.specials})
   const newG = pickUnique(candidates)
   if(newG){usedIds.add(newG.id);sequence[index]=newG;renderCurrent()}
-}
-
-startBtn.onclick = async () => {
-  const j1 = document.getElementById('joueur1').value.trim()
-  const j2 = document.getElementById('joueur2').value.trim()
-  if(!j1 || !j2) return alert('Renseigne les prénoms')
-  player1 = {name:j1, genre:document.getElementById('genre1').value, specials:getCheckedValues('specGroup1')}
-  player2 = {name:j2, genre:document.getElementById('genre2').value, specials:getCheckedValues('specGroup2')}
-  scenario = document.getElementById('scenario').value
-  index=0;usedIds.clear()
-  status.textContent='Chargement...'
-  sequence = await buildSequence(scenario,[player1,player2])
-  renderCurrent()
-  menu.classList.remove('visible')
 }
 </script>
 </body>
