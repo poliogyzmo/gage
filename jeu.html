@@ -127,18 +127,29 @@ function pickUnique(cands){
 
 // construit la séquence
 async function buildSequence(scenarioName, players){
-  const pattern = SCENARIOS[scenarioName]
-  const seq = []
+  const pattern = SCENARIOS[scenarioName];
+  const seq = [];
+
   for(const step of pattern){
-    const amb = pickAmbiance(step.ambiance)
-    // choisir le joueur cible selon genre
-    const target = step.genre === player1.genre ? player1 : player2
-    const candidates = await fetchCandidates({genre:target.genre,niveau:step.niveau,ambiance:amb,specials:target.specials})
-    const chosen = pickUnique(candidates)
-    if(chosen) usedIds.add(chosen.id)
-    seq.push({...chosen, requestedAmbiance:amb})
+    const amb = pickAmbiance(step.ambiance);
+
+    // on choisit le joueur cible selon le genre du gage
+    let target = players[0].genre === step.genre ? players[0] :
+                 players[1].genre === step.genre ? players[1] : players[0];
+
+    const candidates = await fetchCandidates({
+      genre: step.genre,
+      niveau: step.niveau,
+      ambiance: amb,
+      specials: target.specials
+    });
+
+    const chosen = pickUnique(candidates);
+    if (chosen) usedIds.add(chosen.id);
+
+    seq.push({...chosen, requestedAmbiance: amb});
   }
-  return seq
+  return seq;
 }
 
 // affichage
@@ -152,13 +163,44 @@ function renderCurrent(){
   status.textContent = `Gage ${index+1}/${sequence.length}`
 }
 
-nextBtn.onclick = () => { if(index<sequence.length-1){index++;renderCurrent()} else {texteDiv.textContent='🎉 Fin du jeu';gifImg.src='';status.textContent='Fin 🎉'} }
+// --- bouton changer gage ---
 changeBtn.onclick = async () => {
-  const g = sequence[index]
-  const target = g.genre===player1.genre?player1:player2
-  const cands = await fetchCandidates({genre:g.genre,niveau:g.niveau,ambiance:g.requestedAmbiance,specials:target.specials})
-  const newG = pickUnique(cands)
-  if(newG){usedIds.add(newG.id);sequence[index]=newG;renderCurrent()}
+  const g = sequence[index];
+  const target = g.genre === player1.genre ? player1 : player2;
+
+  // retirer l'ancien gage du Set pour pouvoir le réutiliser
+  if (g.id) usedIds.delete(g.id);
+
+  const cands = await fetchCandidates({
+    genre: g.genre,
+    niveau: g.niveau,
+    ambiance: g.requestedAmbiance,
+    specials: target.specials
+  });
+
+  if (!cands.length) {
+    status.textContent = 'Aucun autre gage disponible';
+    return;
+  }
+
+  const newG = pickUnique(cands);
+  if (newG) {
+    usedIds.add(newG.id);
+    sequence[index] = {...newG, requestedAmbiance: g.requestedAmbiance};
+    renderCurrent();
+  }
+}
+
+// --- bouton suivant ---
+nextBtn.onclick = () => {
+  if(index < sequence.length-1){
+    index++;
+    renderCurrent();
+  } else {
+    status.textContent = 'Fin de la partie 🎉';
+    texteDiv.textContent = '🎉 Fin du jeu !';
+    gifImg.src = '';
+  }
 }
 
 // lance le jeu automatiquement après récupération URL
@@ -175,4 +217,5 @@ if(applyParams()) startGame()
 </script>
 </body>
 </html>
+
 
