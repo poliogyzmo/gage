@@ -65,7 +65,19 @@ function readParams() {
   }
 }
 
-// fetch candidats Supabase avec filtre sur gage spécial multiple
+// Helper pour sélectionner un gage unique
+function pickUnique(cands){
+  const avail = cands.filter(c => !usedIds.has(c.id))
+  return avail.length ? avail[Math.floor(Math.random()*avail.length)] : cands[Math.floor(Math.random()*cands.length)]
+}
+
+// Helper pour gérer l'ambiance
+function pickAmbiance(a){
+  if(a === 'mixed_dom') return Math.random() < 0.5 ? 'domination' : 'bondage'
+  return a
+}
+  
+  // fetch candidats Supabase avec filtre sur gage spécial multiple
 async function fetchCandidates({genre, niveau, ambiance, specials}) {
   const { data, error } = await supabase
     .from('gages')
@@ -86,12 +98,6 @@ async function fetchCandidates({genre, niveau, ambiance, specials}) {
   return filtered.length ? filtered : data
 }
 
-// picker unique en évitant répétition
-function pickUnique(cands){
-  const avail = cands.filter(c => !usedIds.has(c.id))
-  return avail.length ? avail[Math.floor(Math.random()*avail.length)] : cands[Math.floor(Math.random()*cands.length)]
-}
-
 // gestion de l'affichage
 function renderCurrent(){
   const g = sequence[index]
@@ -109,9 +115,7 @@ function renderCurrent(){
   status.textContent = `Gage ${index+1}/${sequence.length}`
 }
 
-// construire la séquence
-async function buildSequence(scenarioName, players){
-  // patterns simples pour exemple
+
   const SCENARIOS = {
   soft_court: [ 
     {genre:'homme', niveau:'debut', ambiance:'romantique'}, 
@@ -270,45 +274,61 @@ domination: [
  ] 
 }
 
-  
-
-  const pattern = SCENARIOS[scenarioName] || SCENARIOS.soft_court
+ // --- BUILD SEQUENCE ---
+async function buildSequence(scenarioName, players){
+  const pattern = SCENARIOS[scenarioName]
   const seq = []
 
   for(const step of pattern){
-    const target = step.genre === player1.genre ? player1 : player2
+    let target = players[Math.floor(Math.random()*2)]
+
+    // Bypass: si niveau 'anal' et joueur n'a pas coché 'oui', remplacer par 'avance'
+    let niveau = step.niveau
+    if(niveau === 'anal' && !target.specials.includes('oui')){
+      niveau = 'avance'
+    }
+ 
+   const amb = pickAmbiance(step.ambiance)
     const candidates = await fetchCandidates({
-      genre: step.genre,
-      niveau: step.niveau,
-      ambiance: step.ambiance,
+      genre: target.genre,
+      niveau: niveau,
+      ambiance: amb,
       specials: target.specials
     })
+
     const chosen = pickUnique(candidates)
     if(chosen) usedIds.add(chosen.id)
-    seq.push({...chosen, requestedAmbiance: step.ambiance})
+    seq.push({...chosen, requestedAmbiance: amb, originalNiveau: step.niveau})
   }
   return seq
 }
 
-// navigation
+// --- RENDER ---
+function renderCurrent(){
+  const g = sequence[index]
+  if(!g){texteDiv.textContent='Aucun gage';gifImg.src='';return}
+  texteDiv.textContent = `${g.texte || '—'}`
+  gifImg.src = g.gif_url || ''
+  progressBar.style.width = `${Math.round(((index+1)/sequence.length)*100)}%`
+  status.textContent = `Gage ${index+1}/${sequence.length}`
+}
+
+// --- EVENTS ---
 nextBtn.onclick = () => {
   if(index < sequence.length-1){index++;renderCurrent()}
   else{status.textContent='Fin 🎉';texteDiv.textContent='🎉 Fin du jeu';gifImg.src=''}
 }
 
+  
 // changer gage (plusieurs fois possible)
 changeBtn.onclick = async () => {
   const g = sequence[index]
   const target = g.genre === player1.genre ? player1 : player2
-  const cands = await fetchCandidates({
-    genre:g.genre,
-    niveau:g.niveau,
-    ambiance:g.requestedAmbiance,
-    specials:target.specials
-  })
+  const cands = await fetchCandidates({genre:g.genre, niveau:g.originalNiveau==='anal' && !target.specials.includes('oui') ? 'avance' : g.originalNiveau, ambiance:g.requestedAmbiance, specials:target.specials})
   const newG = pickUnique(cands)
-  if(newG){usedIds.add(newG.id);sequence[index]=newG;renderCurrent()}
+  if(newG){sequence[index]=newG;renderCurrent()}
 }
+
 
 // initialisation
 async function startGame(){
@@ -335,6 +355,7 @@ startGame()
 </script>
 </body>
 </html>
+
 
 
 
