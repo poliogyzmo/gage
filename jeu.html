@@ -105,10 +105,10 @@ async function buildSequence(scenarioName, players){
   const seq = []
 
   for(const step of pattern){
-    let target = players[Math.floor(Math.random()*2)] || players[0]
+    // Respecter le genre défini dans le scénario
+    const target = step.genre === player1.genre ? player1 : player2
     target.specials = target.specials || ['non']
 
-    // Bypass: si niveau 'anal' et joueur n'a pas coché 'oui', remplacer par 'avance'
     let niveau = step.niveau
     if(niveau === 'anal' && !target.specials.includes('oui')){
       niveau = 'avance'
@@ -126,8 +126,10 @@ async function buildSequence(scenarioName, players){
     if(chosen) usedIds.add(chosen.id)
     seq.push({...chosen, requestedAmbiance: amb, originalNiveau: step.niveau})
   }
+
   return seq
 }
+
 
 // --- RENDER ---
 function renderCurrent(){
@@ -158,7 +160,7 @@ changeBtn.onclick = async () => {
   const target = (g.genre === player1.genre ? player1 : player2) || player1
   const niveau = (g.originalNiveau==='anal' && !target.specials.includes('oui')) ? 'avance' : g.originalNiveau
   const cands = await fetchCandidates({
-    genre: g.genre,
+    genre: target.genre,
     niveau: niveau,
     ambiance: g.requestedAmbiance,
     specials: target.specials
@@ -351,6 +353,7 @@ startGame()
 </script>
 </body>
 </html>
+
 
 
 
