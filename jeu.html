@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="fr">
 <head>
 <meta charset="utf-8" />
@@ -76,9 +76,10 @@ function pickAmbiance(a){
   if(a === 'mixed_dom') return Math.random() < 0.5 ? 'domination' : 'bondage'
   return a
 }
-  
-  // fetch candidats Supabase avec filtre sur gage spécial multiple
+
+// fetch candidats Supabase avec filtre sur gage spécial multiple
 async function fetchCandidates({genre, niveau, ambiance, specials}) {
+  specials = specials || ['non']
   const { data, error } = await supabase
     .from('gages')
     .select('*')
@@ -98,7 +99,37 @@ async function fetchCandidates({genre, niveau, ambiance, specials}) {
   return filtered.length ? filtered : data
 }
 
-// gestion de l'affichage
+// --- BUILD SEQUENCE ---
+async function buildSequence(scenarioName, players){
+  const pattern = SCENARIOS[scenarioName]
+  const seq = []
+
+  for(const step of pattern){
+    let target = players[Math.floor(Math.random()*2)] || players[0]
+    target.specials = target.specials || ['non']
+
+    // Bypass: si niveau 'anal' et joueur n'a pas coché 'oui', remplacer par 'avance'
+    let niveau = step.niveau
+    if(niveau === 'anal' && !target.specials.includes('oui')){
+      niveau = 'avance'
+    }
+
+    const amb = pickAmbiance(step.ambiance)
+    const candidates = await fetchCandidates({
+      genre: target.genre,
+      niveau: niveau,
+      ambiance: amb,
+      specials: target.specials
+    })
+
+    const chosen = pickUnique(candidates)
+    if(chosen) usedIds.add(chosen.id)
+    seq.push({...chosen, requestedAmbiance: amb, originalNiveau: step.niveau})
+  }
+  return seq
+}
+
+// --- RENDER ---
 function renderCurrent(){
   const g = sequence[index]
   if(!g){texteDiv.textContent='Aucun gage';gifImg.src='';return}
@@ -115,9 +146,53 @@ function renderCurrent(){
   status.textContent = `Gage ${index+1}/${sequence.length}`
 }
 
+// --- EVENTS ---
+nextBtn.onclick = () => {
+  if(index < sequence.length-1){index++;renderCurrent()}
+  else{status.textContent='Fin 🎉';texteDiv.textContent='🎉 Fin du jeu';gifImg.src=''}
+}
 
-  const SCENARIOS = {
-  soft_court: [ 
+// changer gage (plusieurs fois possible)
+changeBtn.onclick = async () => {
+  const g = sequence[index]
+  const target = (g.genre === player1.genre ? player1 : player2) || player1
+  const niveau = (g.originalNiveau==='anal' && !target.specials.includes('oui')) ? 'avance' : g.originalNiveau
+  const cands = await fetchCandidates({
+    genre: g.genre,
+    niveau: niveau,
+    ambiance: g.requestedAmbiance,
+    specials: target.specials
+  })
+  const newG = pickUnique(cands)
+  if(newG){sequence[index]=newG;renderCurrent()}
+}
+
+// initialisation
+async function startGame(){
+  const params = readParams()
+  player1 = {
+    name: params.joueur1,
+    genre: params.genre1,
+    specials: params.specials1
+  }
+  player2 = {
+    name: params.joueur2,
+    genre: params.genre2,
+    specials: params.specials2
+  }
+  scenario = params.scenario
+  index = 0
+  usedIds.clear()
+  status.textContent = 'Génération des gages...'
+  sequence = await buildSequence(scenario, [player1, player2])
+  renderCurrent()
+}
+
+startGame()
+
+// --- SCENARIOS ---
+const SCENARIOS = {
+ soft_court: [ 
     {genre:'homme', niveau:'debut', ambiance:'romantique'}, 
     {genre:'femme', niveau:'debut', ambiance:'romantique'},  
     {genre:'homme', niveau:'mains', ambiance:'romantique'}, 
@@ -273,88 +348,11 @@ domination: [
     {genre:'femme', niveau:'anal', ambiance:'domination'}
  ] 
 }
-
- // --- BUILD SEQUENCE ---
-async function buildSequence(scenarioName, players){
-  const pattern = SCENARIOS[scenarioName]
-  const seq = []
-
-  for(const step of pattern){
-    let target = players[Math.floor(Math.random()*2)]
-
-    // Bypass: si niveau 'anal' et joueur n'a pas coché 'oui', remplacer par 'avance'
-    let niveau = step.niveau
-    if(niveau === 'anal' && !target.specials.includes('oui')){
-      niveau = 'avance'
-    }
- 
-   const amb = pickAmbiance(step.ambiance)
-    const candidates = await fetchCandidates({
-      genre: target.genre,
-      niveau: niveau,
-      ambiance: amb,
-      specials: target.specials
-    })
-
-    const chosen = pickUnique(candidates)
-    if(chosen) usedIds.add(chosen.id)
-    seq.push({...chosen, requestedAmbiance: amb, originalNiveau: step.niveau})
-  }
-  return seq
-}
-
-// --- RENDER ---
-function renderCurrent(){
-  const g = sequence[index]
-  if(!g){texteDiv.textContent='Aucun gage';gifImg.src='';return}
-  texteDiv.textContent = `${g.texte || '—'}`
-  gifImg.src = g.gif_url || ''
-  progressBar.style.width = `${Math.round(((index+1)/sequence.length)*100)}%`
-  status.textContent = `Gage ${index+1}/${sequence.length}`
-}
-
-// --- EVENTS ---
-nextBtn.onclick = () => {
-  if(index < sequence.length-1){index++;renderCurrent()}
-  else{status.textContent='Fin 🎉';texteDiv.textContent='🎉 Fin du jeu';gifImg.src=''}
-}
-
   
-// changer gage (plusieurs fois possible)
-changeBtn.onclick = async () => {
-  const g = sequence[index]
-  const target = g.genre === player1.genre ? player1 : player2
-  const cands = await fetchCandidates({genre:g.genre, niveau:g.originalNiveau==='anal' && !target.specials.includes('oui') ? 'avance' : g.originalNiveau, ambiance:g.requestedAmbiance, specials:target.specials})
-  const newG = pickUnique(cands)
-  if(newG){sequence[index]=newG;renderCurrent()}
-}
-
-
-// initialisation
-async function startGame(){
-  const params = readParams()
-  player1 = {
-    name: params.joueur1,
-    genre: params.genre1,
-    specials: params.specials1
-  }
-  player2 = {
-    name: params.joueur2,
-    genre: params.genre2,
-    specials: params.specials2
-  }
-  scenario = params.scenario
-  index = 0
-  usedIds.clear()
-  status.textContent = 'Génération des gages...'
-  sequence = await buildSequence(scenario, [player1, player2])
-  renderCurrent()
-}
-
-startGame()
 </script>
 </body>
 </html>
+
 
 
 
