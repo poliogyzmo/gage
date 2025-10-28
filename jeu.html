@@ -310,6 +310,10 @@ domination: [
  ] 
 }
 
+  function pickAmbiance(a){
+  if(a === 'mixed_dom') return Math.random() < 0.5 ? 'domination' : 'bondage'
+  return a
+}
 
   const pattern = SCENARIOS[scenarioName] || SCENARIOS.soft_court
   const seq = []
@@ -374,6 +378,7 @@ startGame()
 </script>
 </body>
 </html>
+
 
 
 
