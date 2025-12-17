@@ -198,31 +198,13 @@ const SCENARIOS = {
     {genre:'homme', niveau:'mains', ambiance:'romantique'}, 
     {genre:'femme', niveau:'mains', ambiance:'romantique'}, 
     {genre:'homme', niveau:'bouche', ambiance:'romantique'}, 
-    {genre:'femme', niveau:'bouche', ambiance:'romantique'}, 
-    {genre:'homme', niveau:'avance', ambiance:'romantique'}, 
-    {genre:'femme', niveau:'avance', ambiance:'romantique'} 
- ], 
-  
-  soft_long: [ 
-    {genre:'homme', niveau:'debut', ambiance:'romantique'}, 
-    {genre:'femme', niveau:'debut', ambiance:'romantique'}, 
-    {genre:'homme', niveau:'debut', ambiance:'romantique'},  
-    {genre:'femme', niveau:'debut', ambiance:'romantique'},     
-    {genre:'homme', niveau:'mains', ambiance:'romantique'}, 
-    {genre:'femme', niveau:'mains', ambiance:'romantique'}, 
-    {genre:'homme', niveau:'mains', ambiance:'romantique'}, 
-    {genre:'femme', niveau:'mains', ambiance:'romantique'}, 
-    {genre:'homme', niveau:'bouche', ambiance:'romantique'}, 
-    {genre:'femme', niveau:'bouche', ambiance:'romantique'}, 
-    {genre:'homme', niveau:'bouche', ambiance:'romantique'}, 
-    {genre:'femme', niveau:'bouche', ambiance:'romantique'}, 
+    {genre:'femme', niveau:'bouche', ambiance:'romantique'},  
     {genre:'homme', niveau:'avance', ambiance:'romantique'}, 
     {genre:'femme', niveau:'avance', ambiance:'romantique'}, 
-    {genre:'homme', niveau:'avance', ambiance:'romantique'}, 
-    {genre:'femme', niveau:'avance', ambiance:'romantique'},
     {genre:'homme', niveau:'anal', ambiance:'romantique'}, 
-    {genre:'femme', niveau:'anal', ambiance:'romantique'}
-  ], 
+    {genre:'femme', niveau:'anal', ambiance:'romantique'} 
+ ], 
+
 
 progressif: [ 
     {genre:'homme', niveau:'debut', ambiance:'romantique'}, 
@@ -246,22 +228,22 @@ progressif: [
    ],
 
  bdsm: [ 
- {genre:'femme', niveau:'debut', ambiance:'domination'}, 
- {genre:'femme', niveau:'debut', ambiance:'bondage'},
- {genre:'homme', niveau:'debut', ambiance:'domination'},
- {genre:'homme', niveau:'debut', ambiance:'bondage'},
-   {genre:'homme', niveau:'mains', ambiance:'domination'},
- {genre:'homme', niveau:'mains', ambiance:'bondage'},
- {genre:'femme', niveau:'mains', ambiance:'domination'}, 
-{genre:'femme', niveau:'mains', ambiance:'bondage'}, 
-{genre:'femme', niveau:'bouche', ambiance:'domination'}, 
-{genre:'femme', niveau:'bouche', ambiance:'bondage'}, 
- {genre:'homme', niveau:'bouche', ambiance:'domination'}, 
-{genre:'homme', niveau:'bouche', ambiance:'bondage'},
- {genre:'homme', niveau:'avance', ambiance:'domination'}, 
-{genre:'femme', niveau:'avance', ambiance:'bondage'},
-  {genre:'homme', niveau:'anal', ambiance:'domination'},
- {genre:'femme', niveau:'anal', ambiance:'bondage'}
+ {genre:'femme', niveau:'debut', ambiance:'mixed_dom'}, 
+ {genre:'femme', niveau:'debut', ambiance:'mixed_dom'},
+ {genre:'homme', niveau:'debut', ambiance:'mixed_dom'},
+ {genre:'homme', niveau:'debut', ambiance:'mixed_dom'},
+   {genre:'homme', niveau:'mains', ambiance:'mixed_dom'},
+ {genre:'homme', niveau:'mains', ambiance:'mixed_dom'},
+ {genre:'femme', niveau:'mains', ambiance:'mixed_dom'}, 
+{genre:'femme', niveau:'mains', ambiance:'mixed_dom'}, 
+{genre:'femme', niveau:'bouche', ambiance:'mixed_dom'}, 
+{genre:'femme', niveau:'bouche', ambiance:'mixed_dom'}, 
+ {genre:'homme', niveau:'bouche', ambiance:'mixed_dom'}, 
+{genre:'homme', niveau:'bouche', ambiance:'mixed_dom'},
+ {genre:'homme', niveau:'avance', ambiance:'mixed_dom'}, 
+{genre:'femme', niveau:'avance', ambiance:'mixed_dom'},
+  {genre:'homme', niveau:'anal', ambiance:'mixed_dom'},
+ {genre:'femme', niveau:'anal', ambiance:'mixed_dom'}
  ], 
 
 domination: [ 
@@ -313,7 +295,8 @@ domination: [
  {genre:'homme', niveau:'bouche', ambiance:'domination'},
  {genre:'homme', niveau:'bouche', ambiance:'domination'},
  {genre:'homme', niveau:'avance', ambiance:'domination'}, 
- {genre:'homme', niveau:'avance', ambiance:'domination'}, 
+  {genre:'homme', niveau:'avance', ambiance:'domination'}, 
+ {genre:'homme', niveau:'anal', ambiance:'domination'}, 
  {genre:'homme', niveau:'anal', ambiance:'domination'}
    ], 
 
@@ -327,26 +310,48 @@ domination: [
  {genre:'femme', niveau:'bouche', ambiance:'domination'},
  {genre:'femme', niveau:'bouche', ambiance:'domination'},
  {genre:'femme', niveau:'avance', ambiance:'domination'}, 
- {genre:'femme', niveau:'avance', ambiance:'domination'}, 
+  {genre:'femme', niveau:'avance', ambiance:'domination'}, 
+ {genre:'femme', niveau:'anal', ambiance:'domination'}, 
  {genre:'femme', niveau:'anal', ambiance:'domination'}
    ], 
+
+   switch_long: [ 
+    {genre:'homme', niveau:'debut', ambiance:'mixed_dom'}, 
+    {genre:'homme', niveau:'debut', ambiance:'mixed_dom'}, 
+    {genre:'homme', niveau:'debut', ambiance:'mixed_dom'},   
+    {genre:'homme', niveau:'mains', ambiance:'mixed_dom'}, 
+    {genre:'homme', niveau:'mains', ambiance:'mixed_dom'}, 
+    {genre:'homme', niveau:'mains', ambiance:'mixed_dom'}, 
+    {genre:'homme', niveau:'bouche', ambiance:'mixed_dom'}, 
+    {genre:'homme', niveau:'bouche', ambiance:'mixed_dom'}, 
+    {genre:'homme', niveau:'avance', ambiance:'mixed_dom'}, 
+    {genre:'homme', niveau:'avance', ambiance:'mixed_dom'}, 
+    {genre:'homme', niveau:'anal', ambiance:'mixed_dome'},
+    {genre:'homme', niveau:'anal', ambiance:'mixed_dom'},
+    {genre:'femme', niveau:'debut', ambiance:'mixed_dom'}, 
+    {genre:'femme', niveau:'debut', ambiance:'mixed_dom'}, 
+    {genre:'femme', niveau:'debut', ambiance:'mixed_dom'},   
+    {genre:'femme', niveau:'mains', ambiance:'mixed_dom'}, 
+    {genre:'femme', niveau:'mains', ambiance:'mixed_dom'}, 
+    {genre:'femme', niveau:'mains', ambiance:'mixed_dom'}, 
+    {genre:'femme', niveau:'bouche', ambiance:'mixed_dom'}, 
+    {genre:'femme', niveau:'bouche', ambiance:'mixed_dom'}, 
+    {genre:'femme', niveau:'avance', ambiance:'mixed_dom'}, 
+    {genre:'femme', niveau:'avance', ambiance:'mixed_dom'}, 
+    {genre:'femme', niveau:'anal', ambiance:'mixed_dome'},
+    {genre:'femme', niveau:'anal', ambiance:'mixed_dom'}
+  ], 
+
     
-    
-    switch: [ 
+    switch_court: [ 
  {genre:'homme', niveau:'debut', ambiance:'domination'},
- {genre:'homme', niveau:'debut', ambiance:'bondage'},
  {genre:'homme', niveau:'mains', ambiance:'domination'}, 
- {genre:'homme', niveau:'mains', ambiance:'bondage'},
  {genre:'homme', niveau:'bouche', ambiance:'domination'},
- {genre:'homme', niveau:'bouche', ambiance:'bondage'},
  {genre:'homme', niveau:'avance', ambiance:'domination'}, 
  {genre:'homme', niveau:'anal', ambiance:'domination'}, 
  {genre:'femme', niveau:'debut', ambiance:'domination'}, 
- {genre:'femme', niveau:'debut', ambiance:'bondage'},
  {genre:'femme', niveau:'mains', ambiance:'domination'},
- {genre:'femme', niveau:'mains', ambiance:'bondage'},
  {genre:'femme', niveau:'bouche', ambiance:'domination'},
- {genre:'femme', niveau:'bouche', ambiance:'bondage'},
  {genre:'femme', niveau:'avance', ambiance:'domination'},
  {genre:'femme', niveau:'anal', ambiance:'domination'}
  ] 
@@ -356,6 +361,7 @@ startGame()
 </script>
 </body>
 </html>
+
 
 
 
