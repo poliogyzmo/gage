@@ -172,7 +172,14 @@ changeBtn.onclick = async () => {
     level: g.level
   })
   const newG = pickUnique(cands)
-  if(newG){sequence[index]={newG, level: g.level};renderCurrent()}
+ if (newG) {
+  sequence[index] = {
+    ...newG,
+    level: g.level,
+    requestedAmbiance: g.requestedAmbiance,
+    originalNiveau: g.originalNiveau
+  }
+  renderCurrent()
 }
 
 // initialisation
@@ -367,6 +374,7 @@ startGame()
 </script>
 </body>
 </html>
+
 
 
 
