@@ -86,6 +86,7 @@ async function fetchCandidates({genre, niveau, ambiance, specials}) {
     .eq('lieu','interieur')
     .or(`genre.eq.${genre},genre.eq.mixte`)
     .eq('niveau', niveau)
+    .eq('level', level)  
     .in('ambiance', [ambiance])
     .limit(500)
 
@@ -115,16 +116,20 @@ async function buildSequence(scenarioName, players){
     }
 
     const amb = pickAmbiance(step.ambiance)
+      const level = step.level ?? 1 
+    
     const candidates = await fetchCandidates({
       genre: target.genre,
       niveau: niveau,
       ambiance: amb,
-      specials: target.specials
+      specials: target.specials, level
     })
 
     const chosen = pickUnique(candidates)
     if(chosen) usedIds.add(chosen.id)
-    seq.push({...chosen, requestedAmbiance: amb, originalNiveau: step.niveau})
+    seq.push({...chosen, requestedAmbiance: amb, originalNiveau: step.niveau,
+             level
+             })
   }
 
   return seq
@@ -163,7 +168,8 @@ changeBtn.onclick = async () => {
     genre: target.genre,
     niveau: niveau,
     ambiance: g.requestedAmbiance,
-    specials: target.specials
+    specials: target.specials,
+    level: g.level
   })
   const newG = pickUnique(cands)
   if(newG){sequence[index]=newG;renderCurrent()}
@@ -361,6 +367,7 @@ startGame()
 </script>
 </body>
 </html>
+
 
 
 
