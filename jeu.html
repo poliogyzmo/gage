@@ -78,7 +78,7 @@ function pickAmbiance(a){
 }
 
 // fetch candidats Supabase avec filtre sur gage spécial multiple
-async function fetchCandidates({genre, niveau, ambiance, specials}) {
+async function fetchCandidates({genre, niveau, ambiance, specials, level}) {
   specials = specials || ['non']
   const { data, error } = await supabase
     .from('gages')
@@ -367,6 +367,7 @@ startGame()
 </script>
 </body>
 </html>
+
 
 
 
