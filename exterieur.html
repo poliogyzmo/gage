@@ -128,14 +128,18 @@ function setDriver(i){
 }
 
 async function fetchGage(player, step){
-  let q = supabase.from('gages')
+  let q = supabase
+    .from('gages')
     .select('*')
     .eq('lieu','extérieur')
-    .eq('lieuext',state.scenario)
+    .eq('lieuext', state.scenario)
     .eq('type', step.type)
-    .eq('niveau', step.niveau || null)
     .or(`genre.eq.${step.genre},genre.eq.mixte`)
     .limit(20)
+
+  if(step.niveau){
+    q = q.eq('niveau', step.niveau)
+  }
 
   if(state.scenario === 'voiture'){
     q = q.eq(
@@ -146,17 +150,42 @@ async function fetchGage(player, step){
     )
   }
 
+  const { data, error } = await q
+  if(error){
+    console.error(error)
+    return null
+  }
+
+  if(!data || !data.length) return null
+
+  return data[Math.floor(Math.random()*data.length)]
+}
+
   const { data } = await q
   return data?.length ? data[Math.floor(Math.random()*data.length)] : null
 }
 
 async function start(){
-  for(const niveau of SCENARIOS[state.scenario].ordre){
-    for(const p of state.players){
-      const g = await fetchGage(p,niveau)
-      if(g) state.sequence.push({p:p.name, texte:g.texte})
+  state.sequence = []
+
+  const steps = SCENARIOS[state.scenario].ordre
+
+  for (const step of steps) {
+
+    // joueur cible selon le genre du step
+    const player = state.players.find(p => p.genre === step.genre)
+    if (!player) continue
+
+    const gage = await fetchGage(player, step)
+    if (gage) {
+      state.sequence.push({
+        p: player.name,
+        texte: gage.texte
+      })
     }
   }
+
+  state.step = 0
   show('game')
   render()
 }
