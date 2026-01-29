@@ -69,8 +69,8 @@ const supabase = createClient(
 const SCENARIOS = {
   balade:{ordre:
     [ 
-      {genre:'homme', type:'depart'}, 
-      {genre:'femme', type:'depart'},  
+      {genre:'homme', type:'depart', niveau:'debut'}, 
+      {genre:'femme', type:'depart', niveau:'debut'},  
       {genre:'homme', type:'normal',niveau:'mains'}, 
       {genre:'femme', type:'normal',niveau:'mains'}, 
       {genre:'homme', type:'normal',niveau:'bouche'}, 
@@ -133,8 +133,8 @@ async function fetchGage(player, step){
     .from('gages')
     .select('*')
     .eq('lieu','extérieur')
-    .eq('lieuext', state.scenario)
-    .eq('type', step.type)
+    .eq('lieuext', lieuext)
+    .eq('type', type)
     .or(`genre.eq.${step.genre},genre.eq.mixte`)
     .limit(20)
 
