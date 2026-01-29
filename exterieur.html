@@ -79,7 +79,7 @@ const SCENARIOS = {
     {genre:'femme', type:'normal',niveau:'avance',}, 
     {genre:'homme', type:'normal',niveau:'anal',}, 
     {genre:'femme', type:'normal',niveau:'anal',} 
- ], 
+ ]}, 
     
   shopping:{ordre:['depart','niveau1','niveau2','fin']},
   bar:{ordre:['depart','niveau1','niveau2','fin']},
@@ -127,13 +127,14 @@ function setDriver(i){
   start()
 }
 
-async function fetchGage(player, niveau){
+async function fetchGage(player, step){
   let q = supabase.from('gages')
     .select('*')
     .eq('lieu','extérieur')
     .eq('lieuext',state.scenario)
-    .eq('niveau',niveau)
-    .or(`genre.eq.${player.genre},genre.eq.mixte`)
+    .eq('type', step.type)
+    .eq('niveau', step.niveau || null)
+    .or(`genre.eq.${step.genre},genre.eq.mixte`)
     .limit(20)
 
   if(state.scenario === 'voiture'){
