@@ -1,58 +1,61 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="utf-8" />
-<title>Jeu de Gages – Extérieur</title>
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="utf-8">
+<title>Jeu Extérieur</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
-  body{
-    margin:0;
-    background:#000;
-    color:#fff;
-    font-family:system-ui,Segoe UI,Arial;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-  }
-  .box{
-    width:100%;
-    max-width:500px;
-    padding:20px;
-    text-align:center;
-  }
-  h1{margin-bottom:20px}
-  button{
-    width:100%;
-    margin:8px 0;
-    padding:14px;
-    font-size:16px;
-    font-weight:700;
-    border-radius:10px;
-    border:none;
-    cursor:pointer;
-    background:#00ff99;
-    color:#000;
-  }
-  .alt{background:#555;color:#fff}
-  #texte{margin:20px 0;font-size:18px}
-  #gif{width:100%;max-height:50vh;object-fit:contain}
+body{margin:0;background:#000;color:#fff;font-family:system-ui}
+.screen{display:none;min-height:100vh;align-items:center;justify-content:center;flex-direction:column}
+.screen.active{display:flex}
+input,select,button{
+  padding:12px;margin:6px;border-radius:8px;border:none
+}
+button{background:#00ff99;font-weight:700;cursor:pointer}
+#texte{padding:20px;text-align:center;font-size:5vw}
 </style>
 </head>
+
 <body>
 
-<div class="box" id="screen-scenario">
-  <h1>Choisis un scénario</h1>
-  <button onclick="startScenario('balade')">🚶 Balade / Promenade</button>
-  <button onclick="startScenario('shopping')">🛍 Shopping</button>
-  <button onclick="startScenario('bar')">🍷 Bar / Resto</button>
-  <button onclick="startScenario('voiture')">🚗 Virée en voiture</button>
+<!-- SETUP -->
+<div id="setup" class="screen active">
+  <h2>Configuration</h2>
+  <input id="p1name" placeholder="Prénom joueur 1">
+  <select id="p1genre">
+    <option value="homme">Homme</option>
+    <option value="femme">Femme</option>
+  </select>
+
+  <input id="p2name" placeholder="Prénom joueur 2">
+  <select id="p2genre">
+    <option value="femme">Femme</option>
+    <option value="homme">Homme</option>
+  </select>
+
+  <button onclick="goSelect()">Continuer</button>
 </div>
 
-<div class="box" id="screen-game" style="display:none">
-  <div id="texte">Chargement…</div>
-  <img id="gif" src="" alt="">
-  <button onclick="nextGage()">➡️ Suivant</button>
+<!-- SELECT -->
+<div id="select" class="screen">
+  <h2>Choisis un scénario</h2>
+  <button onclick="chooseScenario('balade')">Balade</button>
+  <button onclick="chooseScenario('shopping')">Shopping</button>
+  <button onclick="chooseScenario('bar')">Bar / resto</button>
+  <button onclick="chooseScenario('voiture')">Voiture</button>
+</div>
+
+<!-- VOITURE -->
+<div id="voiture" class="screen">
+  <h2>Qui conduit ?</h2>
+  <button onclick="setDriver(0)">Joueur 1</button>
+  <button onclick="setDriver(1)">Joueur 2</button>
+</div>
+
+<!-- GAME -->
+<div id="game" class="screen">
+  <div id="texte"></div>
+  <button onclick="next()">Suivant</button>
 </div>
 
 <script type="module">
@@ -60,108 +63,105 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 const supabase = createClient(
   'https://yqqhvanwoxmnakmzaqya.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlxcWh2YW53b3htbmFrbXphcXlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA1MjA4NzYsImV4cCI6MjA3NjA5Njg3Nn0.eEHQBsTKNP9_nQ6LqFBjVgx_9WX9pY1uyX7xaedvn0o'
+  'TON_ANON_KEY'
 )
 
-const STORAGE_KEY = 'jeu_exterieur_progress'
+const SCENARIOS = {
+  balade:{ordre:['depart','niveau1','niveau2','fin']},
+  shopping:{ordre:['depart','niveau1','niveau2','fin']},
+  bar:{ordre:['depart','niveau1','niveau2','fin']},
+  voiture:{ordre:['depart','niveau1','niveau2','fin']}
+}
 
 let state = {
-  scenario: null,
-  index: 0,
-  sequence: [],
-  players: [
-    { name:'Joueur 1', genre:'homme' },
-    { name:'Joueur 2', genre:'femme' }
+  scenario:null,
+  step:0,
+  players:[],
+  driver:null,
+  sequence:[]
+}
+
+const screens = {
+  setup:setup,
+  select:select,
+  voiture:voiture,
+  game:game
+}
+
+function show(id){
+  Object.values(screens).forEach(s=>s.classList.remove('active'))
+  screens[id].classList.add('active')
+}
+
+function goSelect(){
+  state.players = [
+    {name:p1name.value, genre:p1genre.value},
+    {name:p2name.value, genre:p2genre.value}
   ]
+  show('select')
 }
 
-const texte = document.getElementById('texte')
-const gif = document.getElementById('gif')
-
-function save(){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+function chooseScenario(s){
+  state.scenario = s
+  state.step = 0
+  state.sequence = []
+  if(s === 'voiture') show('voiture')
+  else start()
 }
 
-function load(){
-  const s = localStorage.getItem(STORAGE_KEY)
-  if(s) state = JSON.parse(s)
+function setDriver(i){
+  state.driver = i
+  start()
 }
 
-async function fetchGage({genre, niveau, lieuext}){
-  const { data } = await supabase
-    .from('gages')
+async function fetchGage(player, niveau){
+  let q = supabase.from('gages')
     .select('*')
     .eq('lieu','extérieur')
-    .eq('lieuext', lieuext)
-    .eq('niveau', niveau)
-    .or(`genre.eq.${genre},genre.eq.mixte`)
-    .limit(50)
+    .eq('lieuext',state.scenario)
+    .eq('niveau',niveau)
+    .or(`genre.eq.${player.genre},genre.eq.mixte`)
+    .limit(20)
 
-  if(!data?.length) return null
-  return data[Math.floor(Math.random()*data.length)]
-}
-
-async function startScenario(lieuext){
-  state.scenario = lieuext
-  state.index = 0
-  state.sequence = []
-
-  // gage départ pour chaque joueur
-  for(const player of state.players){
-    const g = await fetchGage({
-      genre: player.genre,
-      niveau: 'depart',
-      lieuext
-    })
-    if(g) state.sequence.push(g)
+  if(state.scenario === 'voiture'){
+    q = q.eq(
+      'voiture',
+      state.players.indexOf(player) === state.driver
+        ? 'conducteur'
+        : 'passager'
+    )
   }
 
-  save()
-  showGame()
+  const { data } = await q
+  return data?.length ? data[Math.floor(Math.random()*data.length)] : null
 }
 
-function showGame(){
-  document.getElementById('screen-scenario').style.display='none'
-  document.getElementById('screen-game').style.display='block'
+async function start(){
+  for(const niveau of SCENARIOS[state.scenario].ordre){
+    for(const p of state.players){
+      const g = await fetchGage(p,niveau)
+      if(g) state.sequence.push({p:p.name, texte:g.texte})
+    }
+  }
+  show('game')
   render()
 }
 
 function render(){
-  const g = state.sequence[state.index]
-  if(!g){
-    texte.textContent = '🎉 Fin du scénario'
-    gif.src = ''
-    return
-  }
-  texte.textContent = g.texte
-  gif.src = g.gif_url || ''
+  const g = state.sequence[state.step]
+  texte.textContent = g ? `${g.p} : ${g.texte}` : '🎉 Fin du scénario'
 }
 
-async function nextGage(){
-  state.index++
-
-  // si on arrive à la fin, on génère le suivant
-  if(state.index >= state.sequence.length){
-    const niveau = 'avance' // progression simple (à affiner ensuite)
-    const player = state.players[state.index % 2]
-
-    const g = await fetchGage({
-      genre: player.genre,
-      niveau,
-      lieuext: state.scenario
-    })
-    if(g) state.sequence.push(g)
-  }
-
-  save()
+function next(){
+  state.step++
   render()
 }
 
-// reprise auto
-load()
-if(state.scenario){
-  showGame()
-}
+/* expose */
+window.goSelect = goSelect
+window.chooseScenario = chooseScenario
+window.setDriver = setDriver
+window.next = next
 </script>
 
 </body>
