@@ -69,16 +69,16 @@ const supabase = createClient(
 const SCENARIOS = {
   balade:{ordre:
     [ 
-      {genre:'homme', type:'depart', niveau:'debut'}, 
-      {genre:'femme', type:'depart', niveau:'debut'},  
-      {genre:'homme', type:'normal',niveau:'mains'}, 
-      {genre:'femme', type:'normal',niveau:'mains'}, 
-      {genre:'homme', type:'normal',niveau:'bouche'}, 
-      {genre:'femme', type:'normal',niveau:'bouche'},  
-      {genre:'homme', type:'normal',niveau:'avance'}, 
-      {genre:'femme', type:'normal',niveau:'avance'}, 
-      {genre:'homme', type:'normal',niveau:'anal'}, 
-      {genre:'femme', type:'normal',niveau:'anal'} 
+      {genre:'homme', lieuext:'départ', type:'depart', niveau:'debut'}, 
+      {genre:'femme', lieuext:'départ',type:'depart', niveau:'debut'},  
+      {genre:'homme', lieuext:'balade',type:'normal',niveau:'mains'}, 
+      {genre:'femme', lieuext:'balade',type:'normal',niveau:'mains'}, 
+      {genre:'homme', lieuext:'balade',type:'normal',niveau:'bouche'}, 
+      {genre:'femme', lieuext:'balade',type:'normal',niveau:'bouche'},  
+      {genre:'homme', lieuext:'balade',type:'normal',niveau:'avance'}, 
+      {genre:'femme', lieuext:'balade',type:'normal',niveau:'avance'}, 
+      {genre:'homme', lieuext:'balade',type:'normal',niveau:'anal'}, 
+      {genre:'femme', lieuext:'balade',type:'normal',niveau:'anal'} 
     ]
   },    
   shopping:{ordre:['depart','niveau1','niveau2','fin']},
