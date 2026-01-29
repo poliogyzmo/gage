@@ -67,7 +67,20 @@ const supabase = createClient(
 )
 
 const SCENARIOS = {
-  balade:{ordre:['depart','niveau1','niveau2','fin']},
+  balade:{ordre:
+    [ 
+    {genre:'homme', type:'depart'}, 
+    {genre:'femme', type:'depart'},  
+    {genre:'homme', type:'depart',niveau:'mains'}, 
+    {genre:'femme', type:'depart',niveau:'mains',}, 
+    {genre:'homme', type:'depart',niveau:'bouche',}, 
+    {genre:'femme', type:'depart',niveau:'bouche',},  
+    {genre:'homme', type:'depart',niveau:'avance',}, 
+    {genre:'femme', type:'depart',niveau:'avance',}, 
+    {genre:'homme', type:'depart',niveau:'anal',}, 
+    {genre:'femme', type:'depart',niveau:'anal',} 
+ ], 
+    
   shopping:{ordre:['depart','niveau1','niveau2','fin']},
   bar:{ordre:['depart','niveau1','niveau2','fin']},
   voiture:{ordre:['depart','niveau1','niveau2','fin']}
