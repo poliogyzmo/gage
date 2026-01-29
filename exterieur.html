@@ -69,18 +69,18 @@ const supabase = createClient(
 const SCENARIOS = {
   balade:{ordre:
     [ 
-    {genre:'homme', type:'depart'}, 
-    {genre:'femme', type:'depart'},  
-    {genre:'homme', type:'normal',niveau:'mains'}, 
-    {genre:'femme', type:'normal',niveau:'mains',}, 
-    {genre:'homme', type:'normal',niveau:'bouche',}, 
-    {genre:'femme', type:'normal',niveau:'bouche',},  
-    {genre:'homme', type:'normal',niveau:'avance',}, 
-    {genre:'femme', type:'normal',niveau:'avance',}, 
-    {genre:'homme', type:'normal',niveau:'anal',}, 
-    {genre:'femme', type:'normal',niveau:'anal',} 
- ]}, 
-    
+      {genre:'homme', type:'depart'}, 
+      {genre:'femme', type:'depart'},  
+      {genre:'homme', type:'normal',niveau:'mains'}, 
+      {genre:'femme', type:'normal',niveau:'mains'}, 
+      {genre:'homme', type:'normal',niveau:'bouche'}, 
+      {genre:'femme', type:'normal',niveau:'bouche'},  
+      {genre:'homme', type:'normal',niveau:'avance'}, 
+      {genre:'femme', type:'normal',niveau:'avance'}, 
+      {genre:'homme', type:'normal',niveau:'anal'}, 
+      {genre:'femme', type:'normal',niveau:'anal'} 
+    ]
+  },    
   shopping:{ordre:['depart','niveau1','niveau2','fin']},
   bar:{ordre:['depart','niveau1','niveau2','fin']},
   voiture:{ordre:['depart','niveau1','niveau2','fin']}
@@ -94,11 +94,12 @@ let state = {
   sequence:[]
 }
 
+// ⚠ Définir correctement les écrans
 const screens = {
-  setup:setup,
-  select:select,
-  voiture:voiture,
-  game:game
+  setup: document.getElementById('setup'),
+  select: document.getElementById('select'),
+  voiture: document.getElementById('voiture'),
+  game: document.getElementById('game')
 }
 
 function show(id){
@@ -108,8 +109,8 @@ function show(id){
 
 function goSelect(){
   state.players = [
-    {name:p1name.value, genre:p1genre.value},
-    {name:p2name.value, genre:p2genre.value}
+    {name: document.getElementById('p1name').value, genre: document.getElementById('p1genre').value},
+    {name: document.getElementById('p2name').value, genre: document.getElementById('p2genre').value}
   ]
   show('select')
 }
@@ -161,10 +162,6 @@ async function fetchGage(player, step){
   return data[Math.floor(Math.random()*data.length)]
 }
 
-  const { data } = await q
-  return data?.length ? data[Math.floor(Math.random()*data.length)] : null
-}
-
 async function start(){
   state.sequence = []
 
@@ -192,7 +189,7 @@ async function start(){
 
 function render(){
   const g = state.sequence[state.step]
-  texte.textContent = g ? `${g.p} : ${g.texte}` : '🎉 Fin du scénario'
+  document.getElementById('texte').textContent = g ? `${g.p} : ${g.texte}` : '🎉 Fin du scénario'
 }
 
 function next(){
@@ -200,7 +197,7 @@ function next(){
   render()
 }
 
-/* expose */
+/* expose globalement pour les boutons */
 window.goSelect = goSelect
 window.chooseScenario = chooseScenario
 window.setDriver = setDriver
