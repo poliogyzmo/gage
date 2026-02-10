@@ -60,13 +60,7 @@ button{background:#00ff99;font-weight:700;cursor:pointer}
   <p id="randomResult" class="small"></p>
 </div>
 
-function updateChooseScreen(){
-  btnP1.textContent = state.players[0].name
-  btnP2.textContent = state.players[1].name
-  randomResult.textContent = ''
-}
 
-window.updateChooseScreen = updateChooseScreen
 
 <!-- GAME -->
 <div id="game" class="screen">
@@ -121,6 +115,14 @@ function show(id){
   screens[id].classList.add('active')
 }
 
+function updateChooseScreen(){
+  btnP1.textContent = state.players[0].name
+  btnP2.textContent = state.players[1].name
+  randomResult.textContent = ''
+}
+
+window.updateChooseScreen = updateChooseScreen
+  
 /* SETUP */
 function goChoose(){
   state.players = [
