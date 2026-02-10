@@ -116,9 +116,17 @@ function goChoose(){
     {name:p2name.value || 'Joueur 2', genre:p2genre.value}
   ]
   save()
-  show('choose')
+  show('baladeType')
 }
 
+function chooseBalade(type){
+  state.scenarioName = type // 'court' ou 'long'
+  state.step = 0
+  state.sequence = []
+  save()
+  show('choose')
+}
+  
 function setTarget(i){
   state.targetIndex = i
   startGame()
@@ -173,7 +181,9 @@ function render(){
     return
   }
   const target = state.players[state.targetIndex]
-  texte.textContent = `${target.name} : ${g.texte}`
+texte.textContent =
+  `(${state.scenarioName === 'court' ? 'Balade courte' : 'Balade longue'})\n\n`
+  + `${target.name} : ${g.texte}`
   gif.src = g.gif_url || ''
 }
 
