@@ -41,6 +41,13 @@ button{background:#00ff99;font-weight:700;cursor:pointer}
   <button class="small" onclick="resumeGame()">🔁 Reprendre la balade</button>
 </div>
 
+<!-- CHOOSE BALADE TYPE -->
+<div id="baladeType" class="screen">
+  <h2>Type de balade</h2>
+  <button onclick="chooseBalade('court')">🌿 Balade courte</button>
+  <button onclick="chooseBalade('long')">🌙 Balade longue</button>
+</div>
+  
 <!-- CHOOSE TARGET -->
 <div id="choose" class="screen">
   <h2>Qui subira les gages ?</h2>
@@ -93,6 +100,7 @@ let state = {
 /* UI */
 const screens = {
   setup,
+  baladeType,
   choose,
   game
 }
