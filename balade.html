@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Jeu Extérieur – Balade</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+body{margin:0;background:#000;color:#fff;font-family:system-ui}
+.screen{display:none;min-height:100vh;align-items:center;justify-content:center;flex-direction:column;text-align:center}
+.screen.active{display:flex}
+input,select,button{
+  padding:12px;margin:6px;border-radius:8px;border:none;font-size:16px
+}
+button{background:#00ff99;font-weight:700;cursor:pointer}
+#texte{padding:20px;font-size:5vw;max-width:90%}
+#gif{max-width:90%;max-height:60vh;margin-top:10px}
+.small{font-size:14px;opacity:.7}
+</style>
+</head>
+
+<body>
+
+<!-- SETUP -->
+<div id="setup" class="screen active">
+  <h2>Balade – Configuration</h2>
+
+  <input id="p1name" placeholder="Prénom joueur 1">
+  <select id="p1genre">
+    <option value="homme">Homme</option>
+    <option value="femme">Femme</option>
+  </select>
+
+  <input id="p2name" placeholder="Prénom joueur 2">
+  <select id="p2genre">
+    <option value="femme">Femme</option>
+    <option value="homme">Homme</option>
+  </select>
+
+  <button onclick="goChoose()">Continuer</button>
+
+  <button class="small" onclick="resumeGame()">🔁 Reprendre la balade</button>
+</div>
+
+<!-- CHOOSE TARGET -->
+<div id="choose" class="screen">
+  <h2>Qui subira les gages ?</h2>
+  <button onclick="setTarget(0)">Joueur 1</button>
+  <button onclick="setTarget(1)">Joueur 2</button>
+  <button onclick="randomTarget()">🎲 Aléatoire</button>
+</div>
+
+<!-- GAME -->
+<div id="game" class="screen">
+  <div id="texte"></div>
+  <img id="gif" src="" alt="">
+  <button onclick="next()">Suivant</button>
+</div>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+/* SUPABASE */
+const supabase = createClient(
+  'https://yqqhvanwoxmnakmzaqya.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlxcWh2YW53b3htbmFrbXphcXlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA1MjA4NzYsImV4cCI6MjA3NjA5Njg3Nn0.eEHQBsTKNP9_nQ6LqFBjVgx_9WX9pY1uyX7xaedvn0o'
+)
+
+/* SCENARIOS BALADE */
+const BALADE_SCENARIOS = {
+  court: [
+    { ambiance:'depart', niveau:'debut', level:1 },
+    { ambiance:'balade', niveau:'mains', level:1 },
+    { ambiance:'balade', niveau:'bouche', level:1 }
+  ],
+  long: [
+    { ambiance:'depart', niveau:'debut', level:1 },
+    { ambiance:'balade', niveau:'mains', level:1 },
+    { ambiance:'balade', niveau:'mains', level:2 },
+    { ambiance:'balade', niveau:'bouche', level:1 },
+    { ambiance:'balade', niveau:'avance', level:1 }
+  ]
+}
+
+/* STATE */
+let state = {
+  players: [],
+  targetIndex: null,
+  step: 0,
+  sequence: [],
+  scenarioName: 'long'
+}
+
+/* UI */
+const screens = {
+  setup,
+  choose,
+  game
+}
+function show(id){
+  Object.values(screens).forEach(s=>s.classList.remove('active'))
+  screens[id].classList.add('active')
+}
+
+/* SETUP */
+function goChoose(){
+  state.players = [
+    {name:p1name.value || 'Joueur 1', genre:p1genre.value},
+    {name:p2name.value || 'Joueur 2', genre:p2genre.value}
+  ]
+  save()
+  show('choose')
+}
+
+function setTarget(i){
+  state.targetIndex = i
+  startGame()
+}
+
+function randomTarget(){
+  setTarget(Math.random()<0.5 ? 0 : 1)
+}
+
+/* FETCH GAGE */
+async function fetchGage(step){
+  const target = state.players[state.targetIndex]
+
+  const { data, error } = await supabase
+    .from('gages')
+    .select('*')
+    .eq('lieu','exterieur')
+    .eq('ambiance', step.ambiance)
+    .eq('niveau', step.niveau)
+    .eq('level', step.level)
+    .or(`genre.eq.${target.genre},genre.eq.mixte`)
+    .limit(20)
+
+  if(error || !data?.length) return null
+  return data[Math.floor(Math.random()*data.length)]
+}
+
+/* START */
+async function startGame(){
+  state.sequence = []
+  const steps = BALADE_SCENARIOS[state.scenarioName]
+
+  for(const step of steps){
+    const g = await fetchGage(step)
+    if(g){
+      state.sequence.push(g)
+    }
+  }
+
+  state.step = 0
+  save()
+  show('game')
+  render()
+}
+
+/* RENDER */
+function render(){
+  const g = state.sequence[state.step]
+  if(!g){
+    texte.textContent = '🎉 Fin de la balade'
+    gif.src = ''
+    return
+  }
+  const target = state.players[state.targetIndex]
+  texte.textContent = `${target.name} : ${g.texte}`
+  gif.src = g.gif_url || ''
+}
+
+/* NEXT */
+function next(){
+  state.step++
+  save()
+  render()
+}
+
+/* LOCAL STORAGE */
+function save(){
+  localStorage.setItem('balade_state', JSON.stringify(state))
+}
+
+function resumeGame(){
+  const saved = localStorage.getItem('balade_state')
+  if(!saved) return alert('Aucune balade en cours')
+  state = JSON.parse(saved)
+  show('game')
+  render()
+}
+
+/* EXPOSE */
+window.goChoose = goChoose
+window.setTarget = setTarget
+window.randomTarget = randomTarget
+window.next = next
+window.resumeGame = resumeGame
+</script>
+
+</body>
+</html>
