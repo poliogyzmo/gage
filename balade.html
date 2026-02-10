@@ -51,10 +51,20 @@ button{background:#00ff99;font-weight:700;cursor:pointer}
 <!-- CHOOSE TARGET -->
 <div id="choose" class="screen">
   <h2>Qui subira les gages ?</h2>
-  <button onclick="setTarget(0)">Joueur 1</button>
-  <button onclick="setTarget(1)">Joueur 2</button>
+
+  <button id="btnP1" onclick="setTarget(0)"></button>
+  <button id="btnP2" onclick="setTarget(1)"></button>
+
   <button onclick="randomTarget()">🎲 Aléatoire</button>
+
+  <p id="randomResult" class="small"></p>
 </div>
+
+function updateChooseScreen(){
+  btnP1.textContent = state.players[0].name
+  btnP2.textContent = state.players[1].name
+  randomResult.textContent = ''
+}
 
 <!-- GAME -->
 <div id="game" class="screen">
@@ -120,10 +130,11 @@ function goChoose(){
 }
 
 function chooseBalade(type){
-  state.scenarioName = type // 'court' ou 'long'
+  state.scenarioName = type
   state.step = 0
   state.sequence = []
   save()
+  updateChooseScreen()
   show('choose')
 }
   
@@ -133,7 +144,14 @@ function setTarget(i){
 }
 
 function randomTarget(){
-  setTarget(Math.random()<0.5 ? 0 : 1)
+  const i = Math.random() < 0.5 ? 0 : 1
+  state.targetIndex = i
+  save()
+
+  randomResult.textContent =
+    `🎯 C’est ${state.players[i].name} qui subira les gages`
+
+  setTimeout(startGame, 1200)
 }
 
 /* FETCH GAGE */
@@ -175,15 +193,20 @@ async function startGame(){
 /* RENDER */
 function render(){
   const g = state.sequence[state.step]
+
   if(!g){
     texte.textContent = '🎉 Fin de la balade'
     gif.src = ''
     return
   }
+
   const target = state.players[state.targetIndex]
-texte.textContent =
-  `(${state.scenarioName === 'court' ? 'Balade courte' : 'Balade longue'})\n\n`
-  + `${target.name} : ${g.texte}`
+  const giver = state.players[state.targetIndex === 0 ? 1 : 0]
+
+  texte.textContent =
+    `(${state.scenarioName === 'court' ? 'Balade courte' : 'Balade longue'})\n\n`
+    + `${giver.name} : ${g.texte}`
+
   gif.src = g.gif_url || ''
 }
 
