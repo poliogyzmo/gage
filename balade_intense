@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Balade Intense</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<style>
+:root{
+  --tensionColor: 0;
+}
+
+body{
+  margin:0;
+  font-family:system-ui;
+  color:white;
+  transition:background 0.6s ease;
+}
+
+.screen{
+  display:none;
+  min-height:100vh;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  text-align:center;
+  padding:20px;
+}
+
+.screen.active{display:flex}
+
+button{
+  padding:12px 20px;
+  margin:8px;
+  border:none;
+  border-radius:8px;
+  font-weight:700;
+  cursor:pointer;
+  background:#00ff99;
+}
+
+#texte{
+  font-size:5vw;
+  max-width:90%;
+  margin:20px 0;
+}
+
+#gif{
+  max-width:90%;
+  max-height:50vh;
+  margin:10px 0;
+}
+
+#tensionBarContainer{
+  width:80%;
+  height:18px;
+  background:#222;
+  border-radius:20px;
+  overflow:hidden;
+  margin-top:10px;
+}
+
+#tensionBar{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#00ff99,#ff0000);
+  transition:width 0.5s ease;
+}
+
+.small{font-size:14px;opacity:.7}
+</style>
+</head>
+
+<body>
+
+<!-- SETUP -->
+<div id="setup" class="screen active">
+  <h2>Balade Intense</h2>
+  <input id="p1name" placeholder="Prénom joueur 1">
+  <input id="p2name" placeholder="Prénom joueur 2">
+  <button onclick="startSetup()">Commencer</button>
+  <button class="small" onclick="resumeGame()">🔁 Reprendre</button>
+</div>
+
+<!-- GAME -->
+<div id="game" class="screen">
+  <div id="texte"></div>
+  <img id="gif" src="">
+  <div id="choices"></div>
+
+  <div id="tensionBarContainer">
+    <div id="tensionBar"></div>
+  </div>
+  <div id="tensionText"></div>
+</div>
+
+<script type="module">
+
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+const supabase = createClient(
+  'https://yqqhvanwoxmnakmzaqya.supabase.co',
+  'YOUR_PUBLIC_KEY'
+)
+
+/* ================= STATE ================= */
+
+let state = {
+  players: [],
+  targetIndex: 0,
+  tension: 0,
+  currentNode: "start"
+}
+
+/* ================= TREE ================= */
+
+const TREE = {
+
+start:{
+  ambiance:'depart',
+  niveau:'debut',
+  level:1,
+  text:"Avant de partir…",
+  next:"mains",
+  effect:(s)=>{s.tension+=1}
+},
+
+mains:{
+  ambiance:'balade',
+  niveau:'mains',
+  level:1,
+  choices:[
+    {label:"Continuer", next:"bouche", effect:(s)=>{s.tension+=1}},
+    {label:"Refuser", next:"punition"}
+  ]
+},
+
+bouche:{
+  ambiance:'balade',
+  niveau:'bouche',
+  level:1,
+  choices:[
+    {label:"🔥 Aller plus loin", next:"avance", condition:(s)=>s.tension>=2},
+    {label:"Ralentir", next:"mains"}
+  ],
+  effect:(s)=>{s.tension+=2}
+},
+
+avance:{
+  ambiance:'balade',
+  niveau:'avance',
+  level:1,
+  choices:[
+    {label:"💣 Explosion", next:"climax"},
+    {label:"🚗 Retour voiture", next:"voiture"}
+  ],
+  effect:(s)=>{s.tension+=2}
+},
+
+voiture:{
+  ambiance:'voiture',
+  niveau:'avance',
+  level:2,
+  next:"climax",
+  effect:(s)=>{s.tension+=2}
+},
+
+punition:{
+  ambiance:'balade',
+  niveau:'mains',
+  level:2,
+  next:"avance",
+  effect:(s)=>{s.tension+=3}
+},
+
+climax:{
+  end:true
+}
+
+}
+
+/* ================= UI ================= */
+
+const screens = {setup,game}
+
+function show(id){
+  Object.values(screens).forEach(s=>s.classList.remove("active"))
+  screens[id].classList.add("active")
+}
+
+/* ================= CORE ================= */
+
+async function fetchGage(node){
+
+  const target = state.players[state.targetIndex]
+
+  const { data } = await supabase
+    .from('gages')
+    .select('*')
+    .eq('lieu','exterieur')
+    .eq('ambiance',node.ambiance)
+    .eq('niveau',node.niveau)
+    .eq('level',node.level)
+    .limit(20)
+
+  if(!data?.length) return null
+  return data[Math.floor(Math.random()*data.length)]
+}
+
+async function renderNode(){
+
+  const node = TREE[state.currentNode]
+
+  if(node.end){
+    texte.textContent = "🔥🔥🔥 Explosion finale."
+    gif.src=""
+    choices.innerHTML=""
+    updateVisual()
+    return
+  }
+
+  if(node.effect) node.effect(state)
+
+  const gage = await fetchGage(node)
+
+  const giver = state.players[state.targetIndex===0?1:0]
+
+  texte.textContent = giver.name + " : " + (gage?.texte || "...")
+  gif.src = gage?.gif_url || ""
+
+  choices.innerHTML=""
+
+  if(node.choices){
+    node.choices.forEach(c=>{
+      if(!c.condition || c.condition(state)){
+        const b=document.createElement("button")
+        b.textContent=c.label
+        b.onclick=()=>{
+          if(c.effect) c.effect(state)
+          state.currentNode=c.next
+          save()
+          renderNode()
+        }
+        choices.appendChild(b)
+      }
+    })
+  }else if(node.next){
+    const b=document.createElement("button")
+    b.textContent="Suivant"
+    b.onclick=()=>{
+      state.currentNode=node.next
+      save()
+      renderNode()
+    }
+    choices.appendChild(b)
+  }
+
+  updateVisual()
+  save()
+}
+
+/* ================= VISUAL INTENSITY ================= */
+
+function updateVisual(){
+
+  const tensionPercent = Math.min(state.tension*12,100)
+
+  tensionBar.style.width = tensionPercent + "%"
+
+  tensionText.textContent = "Tension : " + state.tension
+
+  const redIntensity = Math.min(state.tension*20,255)
+
+  document.body.style.background =
+    "rgb(" + redIntensity + ",0,0)"
+}
+
+/* ================= FLOW ================= */
+
+function startSetup(){
+  state.players = [
+    {name:p1name.value||"Joueur 1"},
+    {name:p2name.value||"Joueur 2"}
+  ]
+  state.targetIndex = Math.random()<0.5?0:1
+  state.tension=0
+  state.currentNode="start"
+  save()
+  show("game")
+  renderNode()
+}
+
+function save(){
+  localStorage.setItem("balade_intense",JSON.stringify(state))
+}
+
+function resumeGame(){
+  const s=localStorage.getItem("balade_intense")
+  if(!s) return alert("Aucune partie sauvegardée")
+  state=JSON.parse(s)
+  show("game")
+  renderNode()
+}
+
+/* expose */
+window.startSetup=startSetup
+window.resumeGame=resumeGame
+
+</script>
+</body>
+</html>
