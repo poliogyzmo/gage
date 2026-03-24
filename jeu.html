@@ -9,8 +9,28 @@
   html,body{height:100%;margin:0;background:#000;color:#fff;font-family:system-ui,Segoe UI,Arial;}
   .app{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden}
   #gif{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:1;background:#000}
-  #texte{position:absolute;top:4%;left:50%;transform:translateX(-50%);z-index:2;background:rgba(0,0,0,0.45);padding:8px 14px;border-radius:8px;font-weight:700;font-size:1.6vw;max-width:86%;text-align:center}
-  @media(max-width:768px){#texte{font-size:4.5vw}}
+  #texte{
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  z-index:2;
+
+  background:rgba(0,0,0,0.65);
+  padding:18px 20px;
+
+  font-weight:700;
+  font-size:2vw;
+  text-align:center;
+
+  box-sizing:border-box;
+}
+@media(max-width:768px){
+  #texte{
+    font-size:5vw;
+    padding:16px;
+  }
+}
   .controls{position:fixed;bottom:4%;left:50%;transform:translateX(-50%);display:flex;gap:12px;z-index:3}
   .btn{background:var(--accent);border:none;color:#000;padding:10px 16px;border-radius:10px;font-weight:700;cursor:pointer}
   .btn.alt{background:#666;color:#fff}
