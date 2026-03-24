@@ -20,17 +20,13 @@
   padding:18px 20px;
 
   font-weight:700;
-  font-size:2vw;
+ font-size: clamp(15px, 2.2vw, 20px);
+  line-height: 1.4;
   text-align:center;
 
   box-sizing:border-box;
 }
-@media(max-width:768px){
-  #texte{
-    font-size:5vw;
-    padding:16px;
-  }
-}
+
   .controls{position:fixed;bottom:4%;left:50%;transform:translateX(-50%);display:flex;gap:12px;z-index:3}
   .btn{background:var(--accent);border:none;color:#000;padding:10px 16px;border-radius:10px;font-weight:700;cursor:pointer}
   .btn.alt{background:#666;color:#fff}
