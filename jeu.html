@@ -36,7 +36,7 @@ html,body{
 
 /* GIF */
 .gif-container{
-  flex:1.2;
+  flex:2;
   background:#aaa;
   border-radius:30px;
   overflow:hidden;
@@ -49,14 +49,15 @@ html,body{
 }
 
 #gif{
-  width:100%;
+width:100%;
   height:100%;
-  object-fit:cover;
+  object-fit:contain;
+  background:#000;
 }
 
 /* PANEL DROIT */
 .right-panel{
-  flex:0.8;
+  flex:1;
   display:flex;
   flex-direction:column;
   justify-content:center;
@@ -172,7 +173,7 @@ html,body{
     </div>
 
     <div class="right-panel">
-      <div class="player-name" id="playerName">...</div>
+      <div class="player-name" id="playerName"></div>
 
       <div id="texte">Chargement...</div>
 
