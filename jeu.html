@@ -627,6 +627,20 @@ domination: [
 startGame()
   
 </script>
+  <script>
+/* Fix rotation mobile + refresh layout propre */
+function handleOrientationChange(){
+  document.body.style.opacity = "0.98"; // micro repaint
+
+  setTimeout(() => {
+    window.scrollTo(0,1); // fix viewport mobile
+    document.body.style.opacity = "1";
+  }, 200);
+}
+
+window.addEventListener("orientationchange", handleOrientationChange);
+window.addEventListener("resize", handleOrientationChange);
+</script>
 </body>
 </html>
 
