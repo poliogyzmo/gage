@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Choix secret - Joueur 2</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#0a0a0a;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:100vh;
+}
+
+.container{
+  width:100%;
+  max-width:500px;
+  padding:20px;
+}
+
+h2{
+  text-align:center;
+  margin-bottom:20px;
+}
+
+.section{
+  margin-bottom:20px;
+}
+
+.checkbox-group{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-top:10px;
+}
+
+label{
+  font-size:16px;
+}
+
+select{
+  width:100%;
+  padding:10px;
+  border-radius:10px;
+  border:none;
+  margin-top:10px;
+}
+
+button{
+  width:100%;
+  padding:15px;
+  border:none;
+  border-radius:15px;
+  background:#b30000;
+  color:#fff;
+  font-size:18px;
+  cursor:pointer;
+}
+
+button:hover{
+  background:#ff1a1a;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <h2 id="title"></h2>
+
+  <div class="section">
+    <label>Envies pour VOUS :</label>
+    <div class="checkbox-group" id="envies_self">
+      <label><input type="checkbox" value="etranglement"> Étranglement</label>
+      <label><input type="checkbox" value="cordes"> Cordes</label>
+      <label><input type="checkbox" value="impact"> Impact</label>
+      <label><input type="checkbox" value="humiliation"> Humiliation</label>
+    </div>
+  </div>
+
+  <div class="section">
+    <label>Envies pour L’AUTRE :</label>
+    <div class="checkbox-group" id="envies_other">
+      <label><input type="checkbox" value="etranglement"> Étranglement</label>
+      <label><input type="checkbox" value="cordes"> Cordes</label>
+      <label><input type="checkbox" value="impact"> Impact</label>
+      <label><input type="checkbox" value="humiliation"> Humiliation</label>
+    </div>
+  </div>
+
+  <div class="section">
+    <label>Fantasme secret :</label>
+    <select id="fantasme">
+      <option value="">Aucun</option>
+      <option value="etranglement">Étranglement</option>
+      <option value="cordes">Cordes</option>
+      <option value="impact">Impact</option>
+      <option value="humiliation">Humiliation</option>
+    </select>
+  </div>
+
+  <button onclick="next()">Lancer le jeu</button>
+
+</div>
+
+<script>
+const setup = JSON.parse(localStorage.getItem('gameSetup'));
+
+document.getElementById('title').innerHTML = `
+📱 Donne le téléphone à <strong>${setup.joueur2}</strong><br><br>
+⚠️ L’autre joueur ne doit pas regarder
+`;
+
+function getChecked(id){
+  return [...document.querySelectorAll(`#${id} input:checked`)]
+    .map(cb => cb.value);
+}
+
+function next(){
+  const data = {
+    envies_self: getChecked('envies_self'),
+    envies_other: getChecked('envies_other'),
+    fantasme: document.getElementById('fantasme').value
+  };
+
+  localStorage.setItem('joueur2Prefs', JSON.stringify(data));
+
+  window.location.href = "jeu.html";
+}
+</script>
+
+</body>
+</html>
