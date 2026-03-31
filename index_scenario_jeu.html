@@ -140,23 +140,41 @@
 
   <footer>© 2025 Jeu des Gages – Tous droits réservés</footer>
 
-  <script>
-    document.getElementById('formJeu').addEventListener('submit', e => {
-      e.preventDefault();
+ <script>
+document.getElementById('formJeu').addEventListener('submit', e => {
+  e.preventDefault();
 
-      const formData = new FormData(e.target);
+  const form = e.target;
+  const formData = new FormData(form);
 
-      // Récupération des cases cochées joueur 1
-      const special1 = [...document.querySelectorAll('#special1 input:checked')].map(cb => cb.value);
-      const special2 = [...document.querySelectorAll('#special2 input:checked')].map(cb => cb.value);
+  // 🔥 Récupération des cases cochées (déjà présent chez toi)
+  const special1 = [...document.querySelectorAll('#special1 input:checked')].map(cb => cb.value);
+  const special2 = [...document.querySelectorAll('#special2 input:checked')].map(cb => cb.value);
 
-      formData.append('special1', special1.join(','));
-      formData.append('special2', special2.join(','));
+  // 🔥 Construire objet propre (AU LIEU de URL params)
+  const data = {
+    joueur1: formData.get('joueur1'),
+    joueur2: formData.get('joueur2'),
+    genre1: formData.get('genre1'),
+    genre2: formData.get('genre2'),
+    scenario: formData.get('scenario'),
 
-      const params = new URLSearchParams(formData).toString();
-      window.location.href = `jeu.html?${params}`;
-    });
-  </script>
+    // préférences existantes (=anal)
+    special1: special1,
+    special2: special2,
+  };
+ 
+  // 🔥 reset propre (important)
+  localStorage.removeItem('joueur1Prefs');
+  localStorage.removeItem('joueur2Prefs');
+
+  // 🔥 stockage global
+  localStorage.setItem('gameSetup', JSON.stringify(data));
+
+  // 🔥 redirection vers page secrète joueur 1
+  window.location.href = "joueur1.html";
+});
+</script>
 
 </body>
 </html>
