@@ -293,24 +293,46 @@ let index = 0
 const usedIds = new Set()
 let player1 = {}, player2 = {}, scenario = ''
 
-// lecture des paramètres depuis URL
-function readParams() {
-  const qs = Object.fromEntries(new URL(location.href).searchParams.entries())
+// lecture des paramètres depuis localstorage
+function readGameData(){
+  const setup = JSON.parse(localStorage.getItem('gameSetup')) || {}
+  const prefs1 = JSON.parse(localStorage.getItem('joueur1Prefs')) || {}
+  const prefs2 = JSON.parse(localStorage.getItem('joueur2Prefs')) || {}
+
   return {
-    joueur1: qs.joueur1 || '',
-    genre1: qs.genre1 || 'femme',
-    specials1: qs.special1 ? qs.special1.split(',') : ['non'],
-    joueur2: qs.joueur2 || '',
-    genre2: qs.genre2 || 'homme',
-    specials2: qs.special2 ? qs.special2.split(',') : ['non'],
-    scenario: qs.scenario || 'soft_court'
+    joueur1: setup.joueur1 || '',
+    genre1: setup.genre1 || 'femme',
+    specials1: setup.special1 || ['non'],
+    envies1: prefs1,
+
+    joueur2: setup.joueur2 || '',
+    genre2: setup.genre2 || 'homme',
+    specials2: setup.special2 || ['non'],
+    envies2: prefs2,
+
+    scenario: setup.scenario || 'soft_court'
   }
 }
 
-// Helper pour sélectionner un gage unique
-function pickUnique(cands){
-  const avail = cands.filter(c => !usedIds.has(c.id))
-  return avail.length ? avail[Math.floor(Math.random()*avail.length)] : cands[Math.floor(Math.random()*cands.length)]
+// Pick avec pondération
+function pickWeighted(cands, prefs){
+  if(!cands.length) return null
+
+  const weighted = cands.map(c => ({
+    gage: c,
+    weight: weightGage(c, prefs)
+  }))
+
+  const totalWeight = weighted.reduce((sum, w) => sum + w.weight, 0)
+
+  let rand = Math.random() * totalWeight
+
+  for(const w of weighted){
+    if(rand < w.weight) return w.gage
+    rand -= w.weight
+  }
+
+  return weighted[0].gage
 }
 
 // Helper pour gérer l'ambiance
@@ -341,16 +363,38 @@ async function fetchCandidates({genre, niveau, ambiance, specials, level}) {
   })
   return filtered.length ? filtered : data
 }
+// système de pondération
+function weightGage(gage, prefs){
+  let score = 1
 
+  if(!prefs) return score
+
+  const enviesSelf = prefs.self || []
+  const enviesOther = prefs.other || []
+
+  // 💥 BONUS si correspond aux envies
+  if(gage.type_special && enviesSelf.includes(gage.type_special)){
+    score += 3
+  }
+
+  if(gage.type_special && enviesOther.includes(gage.type_special)){
+    score += 2
+  }
+
+ 
+
+  return score
+}
+  
 // --- BUILD SEQUENCE ---
-async function buildSequence(scenarioName, players){
+async function buildSequence(scenarioName){
   const pattern = SCENARIOS[scenarioName]
   const seq = []
 
   for(const step of pattern){
-    // Respecter le genre défini dans le scénario
+
     const target = step.genre === player1.genre ? player1 : player2
-    target.specials = target.specials || ['non']
+    const prefs = step.genre === player1.genre ? player1.prefs : player2.prefs
 
     let niveau = step.niveau
     if(niveau === 'anal' && !target.specials.includes('oui')){
@@ -358,20 +402,26 @@ async function buildSequence(scenarioName, players){
     }
 
     const amb = pickAmbiance(step.ambiance)
-      const level = step.level ?? 1 
-    
+    const level = step.level ?? 1
+
     const candidates = await fetchCandidates({
       genre: target.genre,
-      niveau: niveau,
+      niveau,
       ambiance: amb,
-      specials: target.specials, level
+      specials: target.specials,
+      level
     })
 
-    const chosen = pickUnique(candidates)
+    const chosen = pickWeighted(candidates, prefs)
+
     if(chosen) usedIds.add(chosen.id)
-    seq.push({...chosen, requestedAmbiance: amb, originalNiveau: step.niveau,
-             level
-             })
+
+    seq.push({
+      ...chosen,
+      requestedAmbiance: amb,
+      originalNiveau: step.niveau,
+      level
+    })
   }
 
   return seq
@@ -427,22 +477,31 @@ changeBtn.onclick = async () => {
 
 // initialisation
 async function startGame(){
-  const params = readParams()
+  const data = readGameData()
+
   player1 = {
-    name: params.joueur1,
-    genre: params.genre1,
-    specials: params.specials1
+    name: data.joueur1,
+    genre: data.genre1,
+    specials: data.specials1,
+    prefs: data.envies1
   }
+
   player2 = {
-    name: params.joueur2,
-    genre: params.genre2,
-    specials: params.specials2
+    name: data.joueur2,
+    genre: data.genre2,
+    specials: data.specials2,
+    prefs: data.envies2
   }
-  scenario = params.scenario
+
+  scenario = data.scenario
+
   index = 0
   usedIds.clear()
+
   status.textContent = 'Génération des gages...'
-  sequence = await buildSequence(scenario, [player1, player2])
+
+  sequence = await buildSequence(scenario)
+
   renderCurrent()
 }
 
