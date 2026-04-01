@@ -359,7 +359,7 @@ async function fetchCandidates({genre, niveau, ambiance, specials, level}) {
     .eq('lieu','interieur')
     .or(`genre.eq.${genre},genre.eq.mixte`)
     .eq('niveau', niveau)
-    .eq('level', level)  
+    .eq('level', String(level))  
     .in('ambiance', [ambiance])
     .limit(500)
 
