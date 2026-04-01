@@ -94,16 +94,7 @@ button:hover{
     </div>
   </div>
 
-  <div class="section">
-    <label>Fantasme secret :</label>
-    <select id="fantasme">
-      <option value="">Aucun</option>
-      <option value="etranglement">Étranglement</option>
-      <option value="cordes">Cordes</option>
-      <option value="impact">Impact</option>
-      <option value="humiliation">Humiliation</option>
-    </select>
-  </div>
+ 
 
   <button onclick="next()">Continuer</button>
 
@@ -126,7 +117,7 @@ function next(){
   const data = {
     envies_self: getChecked('envies_self'),
     envies_other: getChecked('envies_other'),
-    fantasme: document.getElementById('fantasme').value
+  
   };
 
   localStorage.setItem('joueur1Prefs', JSON.stringify(data));
