@@ -392,15 +392,7 @@ function weightGage(gage, prefs){
   const enviesSelf = prefs.self || []
   const enviesOther = prefs.other || []
 
-   // 👇 👉 METS TON DEBUG ICI
-  for(const pref of PREF_KEYS){
-    console.log({
-      pref,
-      gage: gage[pref],
-      selfMatch: enviesSelf.includes(pref),
-      otherMatch: enviesOther.includes(pref)
-    })
-  }
+
 
   for(const pref of PREF_KEYS){
 
