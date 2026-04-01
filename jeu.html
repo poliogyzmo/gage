@@ -385,6 +385,7 @@ const PREF_KEYS = [
 
 function weightGage(gage, prefs){
   let score = 1
+  let matched = false // ✅ IMPORTANT
 
   if(!prefs) return score
 
@@ -393,23 +394,27 @@ function weightGage(gage, prefs){
 
   for(const pref of PREF_KEYS){
 
-    // si le gage contient cette pratique
     if(gage[pref]){
 
-      // 💚 le joueur aime RECEVOIR ça
+      // 💚 le joueur aime recevoir
       if(enviesSelf.includes(pref)){
         score += 10
+        matched = true
       }
 
-      // 💜 le partenaire aime FAIRE ça
+      // 💜 le joueur aime faire
       if(enviesOther.includes(pref)){
         score += 5
+        matched = true
       }
     }
   }
-  // 🔥 BONUS : favoriser gages avec au moins 1 kink
-if(matched) score += 2
-  
+
+  // 🔥 bonus si au moins 1 préférence match
+  if(matched){
+    score += 2
+  }
+
   return score
 }
   
