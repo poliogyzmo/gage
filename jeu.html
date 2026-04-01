@@ -361,7 +361,7 @@ async function fetchCandidates({genre, niveau, ambiance, specials, level}) {
     .eq('niveau', niveau)
     .eq('level', String(level))  
     .in('ambiance', [ambiance])
-    .limit(500)
+    .limit(1500)
 
   if(error){console.error(error); return []}
   if(!data?.length) return []
