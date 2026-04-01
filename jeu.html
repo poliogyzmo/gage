@@ -331,7 +331,7 @@ console.table(weighted.map(w => ({
   texte: (w.gage.texte || '').slice(0,40),
   weight: w.weight
 })))
-  
+  console.log(cands[0])
   const totalWeight = weighted.reduce((sum, w) => sum + w.weight, 0)
 
   let rand = Math.random() * totalWeight
