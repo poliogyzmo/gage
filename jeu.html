@@ -361,8 +361,8 @@ async function fetchCandidates({genre, niveau, ambiance, specials, level}) {
   if(!data?.length) return []
 
   const filtered = data.filter(g => {
-    if(!g.type_special) return specials.includes('non')
-    return specials.includes(g.type_special)
+  if(!g.type_special) return true
+return specials.includes(g.type_special)
   })
   return filtered.length ? filtered : data
 }
@@ -392,16 +392,18 @@ function weightGage(gage, prefs){
 
       // 💚 le joueur aime RECEVOIR ça
       if(enviesSelf.includes(pref)){
-        score += 1000
+        score += 10
       }
 
       // 💜 le partenaire aime FAIRE ça
       if(enviesOther.includes(pref)){
-        score += 500
+        score += 5
       }
     }
   }
-
+  // 🔥 BONUS : favoriser gages avec au moins 1 kink
+if(matched) score += 2
+  
   return score
 }
   
