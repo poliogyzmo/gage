@@ -316,9 +316,12 @@ function readGameData(){
 
 // Pick avec pondération
 function pickWeighted(cands, prefs){
-  if(!cands.length) return null
+  const available = cands.filter(c => !usedIds.has(c.id))
+  const pool = available.length ? available : cands
 
-  const weighted = cands.map(c => ({
+  if(!pool.length) return null
+
+  const weighted = pool.map(c => ({
     gage: c,
     weight: weightGage(c, prefs)
   }))
@@ -364,6 +367,16 @@ async function fetchCandidates({genre, niveau, ambiance, specials, level}) {
   return filtered.length ? filtered : data
 }
 // système de pondération
+const PREF_KEYS = [
+  'respiration',
+  'impact',
+  'humiliation',
+  'shibari',
+  'exhib',
+  'douleur',
+  'chaud_froid'
+]
+
 function weightGage(gage, prefs){
   let score = 1
 
@@ -372,16 +385,22 @@ function weightGage(gage, prefs){
   const enviesSelf = prefs.self || []
   const enviesOther = prefs.other || []
 
-  // 💥 BONUS si correspond aux envies
-  if(gage.type_special && enviesSelf.includes(gage.type_special)){
-    score += 3
-  }
+  for(const pref of PREF_KEYS){
 
-  if(gage.type_special && enviesOther.includes(gage.type_special)){
-    score += 2
-  }
+    // si le gage contient cette pratique
+    if(gage[pref]){
 
- 
+      // 💚 le joueur aime RECEVOIR ça
+      if(enviesSelf.includes(pref)){
+        score += 4
+      }
+
+      // 💜 le partenaire aime FAIRE ça
+      if(enviesOther.includes(pref)){
+        score += 2
+      }
+    }
+  }
 
   return score
 }
@@ -463,7 +482,8 @@ changeBtn.onclick = async () => {
     specials: target.specials,
     level: g.level
   })
-  const newG = pickUnique(cands)
+  const prefs = (g.genre === player1.genre ? player1.prefs : player2.prefs)
+const newG = pickWeighted(cands, prefs)
  if (newG) {
   sequence[index] = {
     ...newG,
@@ -539,7 +559,7 @@ progressif: [
     {genre:'homme', niveau:'avance', ambiance:'mixed_dom', level: 1},
     {genre:'femme', niveau:'avance', ambiance:'mixed_dom', level: 1},
     {genre:'homme', niveau:'anal', ambiance:'mixed_dom', level: 1},
-    {genre:'femme', niveau:'anal', ambiance:'mixed_domn', level: 1}
+    {genre:'femme', niveau:'anal', ambiance:'mixed_dom', level: 1}
    ],
 
  bdsm: [ 
