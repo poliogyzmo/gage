@@ -325,7 +325,13 @@ function pickWeighted(cands, prefs){
     gage: c,
     weight: weightGage(c, prefs)
   }))
-
+// 🔥 AJOUTE ÇA JUSTE ICI
+console.table(weighted.map(w => ({
+  id: w.gage.id,
+  texte: (w.gage.texte || '').slice(0,40),
+  weight: w.weight
+})))
+  
   const totalWeight = weighted.reduce((sum, w) => sum + w.weight, 0)
 
   let rand = Math.random() * totalWeight
@@ -435,14 +441,23 @@ async function buildSequence(scenarioName){
 
     const chosen = pickWeighted(candidates, prefs)
 
-    if(chosen) usedIds.add(chosen.id)
+  if(!chosen){
+  console.warn("Aucun gage trouvé pour :", {
+    genre: target.genre,
+    niveau,
+    ambiance: amb
+  })
+  continue
+}
 
-    seq.push({
-      ...chosen,
-      requestedAmbiance: amb,
-      originalNiveau: step.niveau,
-      level
-    })
+usedIds.add(chosen.id)
+
+seq.push({
+  ...chosen,
+  requestedAmbiance: amb,
+  originalNiveau: step.niveau,
+  level
+})
   }
 
   return seq
