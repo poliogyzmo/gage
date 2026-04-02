@@ -397,19 +397,19 @@ function weightGage(gage, prefs){
     if(gage[pref]){
 
       if(enviesSelf.includes(pref)){
-        score += 10
+        score += 20
         matched = true
       }
 
       if(enviesOther.includes(pref)){
-        score += 5
+        score += 20
         matched = true
       }
     }
   }
 
   if(matched){
-    score += 2
+    score += 20
   }
 
   return score
