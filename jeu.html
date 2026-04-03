@@ -383,33 +383,43 @@ const PREF_KEYS = [
   'chaud_froid'
 ]
 
-function weightGage(gage, prefs){
+function weightGage(gage, joueurCible, prefsJ1, prefsJ2){
+
   let score = 1
-  let matched = false
 
-  if(!prefs) return score
+  if(!gage) return score
 
-  const enviesSelf = prefs.envies_self || []
-  const enviesOther = prefs.envies_other || []
+  // 🔹 Sélection des bonnes préférences selon la cible
+  let enviesSelf = []
+  let enviesOther = []
 
+  if(joueurCible === 1){
+    enviesSelf = prefsJ1?.envies_self || []
+    enviesOther = prefsJ2?.envies_other || []
+  }
+
+  if(joueurCible === 2){
+    enviesSelf = prefsJ2?.envies_self || []
+    enviesOther = prefsJ1?.envies_other || []
+  }
+
+  // 🔹 Calcul du score
   for(const pref of PREF_KEYS){
 
     if(gage[pref]){
 
-      if(enviesSelf.includes(pref)){
-        score += 20
-        matched = true
-      }
+      const selfMatch = enviesSelf.includes(pref)
+      const otherMatch = enviesOther.includes(pref)
 
-      if(enviesOther.includes(pref)){
-        score += 20
-        matched = true
+      // 💥 BONUS CLASSIQUE
+      if(selfMatch) score += 25
+      if(otherMatch) score += 15
+
+      // 😈 BONUS SEXY : fantasme partagé
+      if(selfMatch && otherMatch){
+        score += 30
       }
     }
-  }
-
-  if(matched){
-    score += 20
   }
 
   return score
@@ -433,15 +443,36 @@ async function buildSequence(scenarioName){
     const amb = pickAmbiance(step.ambiance)
     const level = step.level ?? 1
 
-    const candidates = await fetchCandidates({
-      genre: target.genre,
-      niveau,
-      ambiance: amb,
-      specials: target.specials,
-      level
-    })
+const candidates = await fetchCandidates({
+  genre: target.genre,
+  niveau,
+  ambiance: amb,
+  specials: target.specials,
+  level
+})
 
-    const chosen = pickWeighted(candidates, prefs)
+// 🔥 prefs globales
+const prefsJ1 = JSON.parse(localStorage.getItem('joueur1Prefs')) || {}
+const prefsJ2 = JSON.parse(localStorage.getItem('joueur2Prefs')) || {}
+
+// 🔥 cible réelle
+const joueurCible = target === player1 ? 1 : 2
+
+// 🔥 pondération
+const weighted = candidates.map(g => ({
+  gage: g,
+  weight: weightGage(g, joueurCible, prefsJ1, prefsJ2)
+}))
+
+// 🔥 DEBUG (optionnel)
+console.table(weighted.map(w => ({
+  id: w.gage.id,
+  texte: (w.gage.texte || '').slice(0,40),
+  weight: w.weight
+})))
+
+// 🔥 tirage pondéré
+const chosen = pickWeighted(weighted)
 
   if(!chosen){
   console.warn("Aucun gage trouvé pour :", {
