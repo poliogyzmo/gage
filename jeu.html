@@ -523,7 +523,17 @@ changeBtn.onclick = async () => {
     level: g.level
   })
   const prefs = (g.genre === player1.genre ? player1.prefs : player2.prefs)
-const newG = pickWeighted(cands, prefs)
+const prefsJ1 = JSON.parse(localStorage.getItem('joueur1Prefs')) || {}
+const prefsJ2 = JSON.parse(localStorage.getItem('joueur2Prefs')) || {}
+
+const joueurCible = target === player1 ? 1 : 2
+
+const weighted = cands.map(g => ({
+  gage: g,
+  weight: weightGage(g, joueurCible, prefsJ1, prefsJ2)
+}))
+
+const newG = pickWeighted(weighted)
  if (newG) {
   sequence[index] = {
     ...newG,
