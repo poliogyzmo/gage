@@ -315,33 +315,23 @@ function readGameData(){
 }
 
 // Pick avec pondération
-function pickWeighted(cands, prefs){
-  const available = cands.filter(c => !usedIds.has(c.id))
-  const pool = available.length ? available : cands
+function pickWeighted(weighted){
+
+  const available = weighted.filter(w => !usedIds.has(w.gage.id))
+  const pool = available.length ? available : weighted
 
   if(!pool.length) return null
 
-  const weighted = pool.map(c => ({
-    gage: c,
-    weight: weightGage(c, prefs)
-  }))
-// 🔥 AJOUTE ÇA JUSTE ICI
-console.table(weighted.map(w => ({
-  id: w.gage.id,
-  texte: (w.gage.texte || '').slice(0,40),
-  weight: w.weight
-})))
-  console.log(cands[0])
-  const totalWeight = weighted.reduce((sum, w) => sum + w.weight, 0)
+  const totalWeight = pool.reduce((sum, w) => sum + w.weight, 0)
 
   let rand = Math.random() * totalWeight
 
-  for(const w of weighted){
+  for(const w of pool){
     if(rand < w.weight) return w.gage
     rand -= w.weight
   }
 
-  return weighted[0].gage
+  return pool[0].gage
 }
 
 // Helper pour gérer l'ambiance
