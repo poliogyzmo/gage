@@ -335,9 +335,9 @@ function pickWeighted(weighted){
 }
 
 // Helper pour gérer l'ambiance
-function pickAmbiance(a){
-  if(a === 'mixed_dom') return Math.random() < 0.5 ? 'domination' : 'bondage'
-  return a
+function getAmbiances(a){
+  if(a === 'mixed_dom') return ['domination', 'bondage']
+  return [a]
 }
 
 // fetch candidats Supabase avec filtre sur gage spécial multiple
@@ -350,7 +350,7 @@ async function fetchCandidates({genre, niveau, ambiance, specials, level}) {
     .or(`genre.eq.${genre},genre.eq.mixte`)
     .eq('niveau', niveau)
     .eq('level', String(level))  
-    .in('ambiance', [ambiance])
+    .in('ambiance', ambiance)
     .limit(1500)
 
   if(error){console.error(error); return []}
@@ -432,13 +432,13 @@ async function buildSequence(scenarioName){
       niveau = 'avance'
     }
 
-    const amb = pickAmbiance(step.ambiance)
+    const ambiances = getAmbiances(step.ambiance)
     const level = step.level ?? 1
 
 const candidates = await fetchCandidates({
   genre: target.genre,
   niveau,
-  ambiance: amb,
+  ambiance: ambiances,
   specials: target.specials,
   level
 })
