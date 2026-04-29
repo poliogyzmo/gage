@@ -470,7 +470,7 @@ const chosen = pickWeighted(weighted)
   console.warn("Aucun gage trouvé pour :", {
     genre: target.genre,
     niveau,
-    ambiance: amb
+    ambiance: ambiances
   })
   continue
 }
@@ -479,7 +479,7 @@ usedIds.add(chosen.id)
 
 seq.push({
   ...chosen,
-  requestedAmbiance: amb,
+  requestedAmbiance: ambiances,
   originalNiveau: step.niveau,
   level
 })
