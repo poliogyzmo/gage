@@ -366,7 +366,6 @@ async function fetchCandidates({genre, niveau, ambiance, specials, level}) {
     .from('gages')
     .select('*')
     .eq('lieu','interieur')
-    .or(`genre.eq.${genre},genre.eq.mixte`)
     .eq('niveau', niveau)
     .eq('level', String(level))  
     .in('ambiance', ambiance)
@@ -375,11 +374,18 @@ async function fetchCandidates({genre, niveau, ambiance, specials, level}) {
   if(error){console.error(error); return []}
   if(!data?.length) return []
 
-  const filtered = data.filter(g => {
-  if(!g.type_special) return true
-return specials.includes(g.type_special)
+  // 🔥 FILTRE GENRE EN JS (SAFE)
+  const genreFiltered = data.filter(g => 
+    g.genre === genre || g.genre === 'mixte'
+  )
+
+  // 🔥 filtre spécial
+  const filtered = genreFiltered.filter(g => {
+    if(!g.type_special) return true
+    return specials.includes(g.type_special)
   })
-  return filtered.length ? filtered : data
+
+  return filtered.length ? filtered : genreFiltered
 }
 // système de pondération
 const PREF_KEYS = [
