@@ -313,7 +313,26 @@ function readGameData(){
     scenario: setup.scenario || 'soft_court'
   }
 }
+function isBlocked(gage, joueurCible, prefsJ1, prefsJ2){
 
+  let blocked = []
+
+  if(joueurCible === 1){
+    blocked = prefsJ1?.envies_block || []
+  }
+
+  if(joueurCible === 2){
+    blocked = prefsJ2?.envies_block || []
+  }
+
+  for(const pref of PREF_KEYS){
+    if(gage[pref] && blocked.includes(pref)){
+      return true
+    }
+  }
+
+  return false
+}
 // Pick avec pondération
 function pickWeighted(weighted){
 
@@ -451,7 +470,13 @@ const prefsJ2 = JSON.parse(localStorage.getItem('joueur2Prefs')) || {}
 const joueurCible = target === player1 ? 1 : 2
 
 // 🔥 pondération
-const weighted = candidates.map(g => ({
+const filteredCandidates = candidates.filter(g => 
+  !isBlocked(g, joueurCible, prefsJ1, prefsJ2)
+)
+
+const finalPool = filteredCandidates.length ? filteredCandidates : candidates // fallback
+
+const weighted = finalPool.map(g => ({
   gage: g,
   weight: weightGage(g, joueurCible, prefsJ1, prefsJ2)
 }))
@@ -530,7 +555,13 @@ const prefsJ2 = JSON.parse(localStorage.getItem('joueur2Prefs')) || {}
 
 const joueurCible = target === player1 ? 1 : 2
 
-const weighted = cands.map(g => ({
+const filteredCandidates = cands.filter(g => 
+  !isBlocked(g, joueurCible, prefsJ1, prefsJ2)
+)
+
+const finalPool = filteredCandidates.length ? filteredCandidates : cands
+
+const weighted = finalPool.map(g => ({
   gage: g,
   weight: weightGage(g, joueurCible, prefsJ1, prefsJ2)
 }))
