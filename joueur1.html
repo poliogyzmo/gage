@@ -102,7 +102,7 @@ button:hover{
 
 <div class="container">
 
-<h2>Joueur 1</h2>
+<h2 id="playerName"></h2>
 
 <div class="header-row">
   <div>❌ Ce que je ne veux pas pour moi</div>
@@ -119,6 +119,12 @@ button:hover{
 
 <script>
 
+const setup = JSON.parse(localStorage.getItem('gameSetup')) || {}
+
+const playerName = setup.joueur1 || 'Joueur 1'
+
+document.getElementById('playerName').textContent = playerName  
+  
 const PREF_KEYS = [
   'respiration','impact','humiliation','shibari','exhib','douleur','chaud_froid','ludique','soft','hard','laissecollier','entrave','sextoy','sensoriel'
 ]
