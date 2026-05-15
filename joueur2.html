@@ -2,68 +2,99 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Choix secret - Joueur 2</title>
+<title>Joueur 2</title>
 
+<!-- même style que joueur1 -->
 <style>
 body{
-  margin:0;
-  font-family:Arial, sans-serif;
-  background:#0a0a0a;
-  color:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  min-height:100vh;
+  font-family: Arial;
+  background: linear-gradient(135deg,#0f0f0f,#1c1c1c);
+  color:white;
+  text-align:center;
 }
 
 .container{
-  width:100%;
-  max-width:500px;
-  padding:20px;
+  max-width:700px;
+  margin:auto;
 }
 
 h2{
+  margin:30px 0;
+}
+
+.header-row{
+  display:grid;
+  grid-template-columns: 1fr 2fr 1fr 1fr;
+  font-size:14px;
+  opacity:0.7;
+  margin-bottom:10px;
+}
+
+.row{
+  display:grid;
+  grid-template-columns: 1fr 2fr 1fr 1fr;
+  align-items:center;
+  margin:8px 0;
+  padding:8px;
+  border-radius:12px;
+  transition:0.2s;
+}
+
+.row:hover{
+  background:#222;
+}
+
+.label{
   text-align:center;
-  margin-bottom:20px;
+  font-weight:bold;
 }
 
-.section{
-  margin-bottom:20px;
+.left{
+  text-align:right;
 }
 
-.checkbox-group{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  margin-top:10px;
+.self{
+  text-align:center;
 }
 
-label{
-  font-size:16px;
+.other{
+  text-align:left;
 }
 
-select{
-  width:100%;
-  padding:10px;
-  border-radius:10px;
-  border:none;
-  margin-top:10px;
+input[type="checkbox"]{
+  transform: scale(1.4);
+  cursor:pointer;
+  transition:0.2s;
+}
+
+/* couleurs */
+.block:checked{
+  accent-color:#ff4d4d;
+}
+
+.self:checked{
+  accent-color:#c77dff;
+}
+
+.other:checked{
+  accent-color:#00e5ff;
 }
 
 button{
-  width:100%;
-  padding:15px;
+  margin-top:30px;
+  padding:12px 25px;
+  font-size:16px;
   border:none;
-  border-radius:15px;
-  background:#b30000;
-  color:#fff;
-  font-size:18px;
+  border-radius:10px;
+  background:#c77dff;
+  color:white;
   cursor:pointer;
+  transition:0.2s;
 }
 
 button:hover{
-  background:#ff1a1a;
+  background:#a855f7;
+  transform:scale(1.05);
 }
 </style>
 </head>
@@ -72,68 +103,76 @@ button:hover{
 
 <div class="container">
 
-  <h2 id="title"></h2>
+<h2>Joueur 2</h2>
 
-  <div class="section">
-    <label>Envies pour VOUS :</label>
-    <div class="checkbox-group" id="envies_self">
-   <label><input type="checkbox" value="respiration"> Étranglement, contrôle de la respiration</label>
- <label><input type="checkbox" value="humiliation"> Humiliation : bodywriting, crachat, insulte, etc</label>
-       <label><input type="checkbox" value="sextoy"> Sextoy : Gode, plug, crochet, womanizer</label>
-      <label><input type="checkbox" value="shibari"> Shibari : Jeu avec les cordes, harnais</label>
-      <label><input type="checkbox" value="exhib"> Exhib : Film, miroir, fenetre</label>
-       <label><input type="checkbox" value="impact"> Impact : Féssée, gifle, fouet, cravache, etc</label>
-       <label><input type="checkbox" value="douleur"> Douleur : Couteau, griffure, pince téton, etc</label>
-      <label><input type="checkbox" value="chaud_froid"> Sensation : Cire, glaçon, etc</label>
-      <label><input type="checkbox" value="sensoriel"> Privation sensorielle : Yeux bandés, momification, etc</label>
-    </div>
-  </div>
+<div class="header-row">
+  <div>❌</div>
+  <div></div>
+  <div>💜 Moi</div>
+  <div>🔥 Autre</div>
+</div>
 
-  <div class="section">
-    <label>Envies pour L’AUTRE :</label>
-    <div class="checkbox-group" id="envies_other">
-   <label><input type="checkbox" value="respiration"> Étranglement, contrôle de la respiration</label>
- <label><input type="checkbox" value="humiliation"> Humiliation : bodywriting, crachat, insulte, etc</label>
-       <label><input type="checkbox" value="sextoy"> Sextoy : Gode, plug, crochet, womanizer</label>
-      <label><input type="checkbox" value="shibari"> Shibari : Jeu avec les cordes, harnais</label>
-      <label><input type="checkbox" value="exhib"> Exhib : Film, miroir, fenetre</label>
-       <label><input type="checkbox" value="impact"> Impact : Féssée, gifle, fouet, cravache, etc</label>
-       <label><input type="checkbox" value="douleur"> Douleur : Couteau, griffure, pince téton, etc</label>
-      <label><input type="checkbox" value="chaud_froid"> Sensation : Cire, glaçon, etc</label>
-      <label><input type="checkbox" value="sensoriel"> Privation sensorielle : Yeux bandés, momification, etc</label>
-    </div>
-  </div>
+<div id="prefs"></div>
 
-  
-
-  <button onclick="next()">Lancer le jeu</button>
+<button onclick="next()">Valider</button>
 
 </div>
 
 <script>
-const setup = JSON.parse(localStorage.getItem('gameSetup'));
 
-document.getElementById('title').innerHTML = `
-📱 Donne le téléphone à <strong>${setup.joueur2}</strong><br><br>
-⚠️ L’autre joueur ne doit pas regarder
-`;
+const PREF_KEYS = [
+  'respiration','impact','humiliation','shibari','exhib','douleur','chaud_froid'
+]
 
-function getChecked(id){
-  return [...document.querySelectorAll(`#${id} input:checked`)]
-    .map(cb => cb.value);
+const LABELS = {
+  respiration:'Respiration',
+  impact:'Impact',
+  humiliation:'Humiliation',
+  shibari:'Shibari',
+  exhib:'Exhibition',
+  douleur:'Douleur',
+  chaud_froid:'Chaud / Froid'
 }
+
+const container = document.getElementById('prefs')
+
+PREF_KEYS.forEach(pref=>{
+  container.innerHTML += `
+    <div class="row">
+      <div class="left">
+        <input type="checkbox" value="${pref}" class="block">
+      </div>
+
+      <div class="label">${LABELS[pref]}</div>
+
+      <div class="self">
+        <input type="checkbox" value="${pref}" class="self">
+      </div>
+
+      <div class="other">
+        <input type="checkbox" value="${pref}" class="other">
+      </div>
+    </div>
+  `
+})
+
+function getChecked(className){
+  return [...document.querySelectorAll('.'+className+':checked')]
+    .map(e=>e.value)
+}
+
 
 function next(){
   const data = {
-    envies_self: getChecked('envies_self'),
-    envies_other: getChecked('envies_other'),
-  
-  };
+    envies_self: getChecked('self'),
+    envies_other: getChecked('other'),
+    envies_block: getChecked('block')
+  }
 
-  localStorage.setItem('joueur2Prefs', JSON.stringify(data));
-
-  window.location.href = "jeu.html";
+  localStorage.setItem('joueur2Prefs', JSON.stringify(data))
+  window.location.href = 'jeu.html'
 }
+
 </script>
 
 </body>
