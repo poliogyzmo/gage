@@ -1,204 +1,548 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Joueur 1</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Préférences du joueur 1</title>
 
 <style>
-body{
-  font-family: Arial;
-  background: linear-gradient(135deg,#0f0f0f,#1c1c1c);
-  color:white;
-  text-align:center;
+:root {
+  --bg: #101114;
+  --card: #1d1f25;
+  --muted: #a7a9b4;
+  --green: #22c55e;
+  --red: #ef4444;
+  --orange: #f97316;
+  --blue: #06b6d4;
+  --purple: #c77dff;
 }
 
-.container{
-  max-width:700px;
-  margin:auto;
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 20px 14px 40px;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #0f0f0f, #1c1c24);
+  color: white;
 }
 
-h2{
-  margin:30px 0;
+.container {
+  width: 100%;
+  max-width: 1000px;
+  margin: auto;
 }
 
-.header-row{
-  display:grid;
-  grid-template-columns: 1fr 2fr 1fr 1fr;
-  font-size:14px;
-  opacity:0.7;
-  margin-bottom:10px;
+.top {
+  text-align: center;
+  margin-bottom: 24px;
 }
 
-.row{
-  display:grid;
-  grid-template-columns: 1fr 2fr 1fr 1fr;
-  align-items:center;
-  margin:8px 0;
-  padding:8px;
-  border-radius:12px;
-  transition:0.2s;
+h1 {
+  font-size: clamp(23px, 4vw, 34px);
+  margin: 12px 0;
 }
 
-.row:hover{
-  background:#222;
+.subtitle {
+  color: var(--muted);
+  line-height: 1.5;
 }
 
-.label{
-  text-align:center;
-  font-weight:bold;
+.legend {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 22px 0;
 }
 
-.left{
-  text-align:right;
+.legend-item {
+  background: #1d1f25;
+  border: 1px solid #353741;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 13px;
+  line-height: 1.4;
 }
 
-.self{
-  text-align:center;
+.legend-item strong {
+  display: block;
+  margin-bottom: 4px;
 }
 
-.other{
-  text-align:left;
+.legend-item.green strong { color: var(--green); }
+.legend-item.red strong { color: var(--red); }
+.legend-item.orange strong { color: var(--orange); }
+.legend-item.blue strong { color: var(--blue); }
+
+.theme {
+  margin: 28px 0;
 }
 
-input[type="checkbox"]{
-  transform: scale(1.4);
-  cursor:pointer;
-  transition:0.2s;
+.theme h2 {
+  font-size: 19px;
+  margin: 0 0 12px;
+  padding-bottom: 9px;
+  border-bottom: 1px solid #363841;
 }
 
-/* couleurs */
-.block:checked{
-  accent-color:#ff4d4d;
+.theme-description {
+  color: var(--muted);
+  font-size: 13px;
+  margin: -4px 0 14px;
 }
 
-.self:checked{
-  accent-color:#c77dff;
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
 }
 
-.other:checked{
-  accent-color:#00e5ff;
+.pref-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 145px;
+  padding: 14px 9px;
+  border: 2px solid #363841;
+  border-radius: 15px;
+  background: var(--card);
+  color: white;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color .15s, background .15s, transform .15s;
+  -webkit-tap-highlight-color: transparent;
 }
 
-button{
-  margin-top:30px;
-  padding:12px 25px;
-  font-size:16px;
-  border:none;
-  border-radius:10px;
-  background:#c77dff;
-  color:white;
-  cursor:pointer;
-  transition:0.2s;
+.pref-card:hover {
+  background: #292b33;
+  transform: translateY(-2px);
 }
 
-button:hover{
-  background:#a855f7;
-  transform:scale(1.05);
+.pref-card:focus-visible {
+  outline: 3px solid white;
+  outline-offset: 3px;
+}
+
+.pref-card .illustration {
+  font-size: 35px;
+  line-height: 1.3;
+  margin-bottom: 9px;
+}
+
+.pref-card .name {
+  font-size: 13px;
+  line-height: 1.35;
+  font-weight: bold;
+}
+
+.pref-card .state {
+  font-size: 11px;
+  line-height: 1.3;
+  margin-top: 8px;
+  color: var(--muted);
+}
+
+/* État 1 : oui pour moi */
+.pref-card[data-state="1"] {
+  border-color: var(--green);
+  background: #143020;
+}
+.pref-card[data-state="1"] .state { color: var(--green); }
+
+/* État 2 : non pour moi */
+.pref-card[data-state="2"] {
+  border-color: var(--red);
+  background: #351919;
+}
+.pref-card[data-state="2"] .state { color: var(--red); }
+
+/* État 3 : non pour moi, oui pour l'autre */
+.pref-card[data-state="3"] {
+  border-color: var(--orange);
+  background: #382416;
+}
+.pref-card[data-state="3"] .state { color: var(--orange); }
+
+/* État 4 : oui pour l'autre */
+.pref-card[data-state="4"] {
+  border-color: var(--blue);
+  background: #123039;
+}
+.pref-card[data-state="4"] .state { color: var(--blue); }
+
+.actions {
+  position: sticky;
+  bottom: 10px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  padding: 12px 0;
+  background: linear-gradient(transparent, #101114 20%);
+}
+
+button.action {
+  border: 0;
+  border-radius: 12px;
+  padding: 14px 22px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#resetBtn {
+  color: white;
+  background: #363841;
+}
+
+#nextBtn {
+  color: white;
+  background: var(--purple);
+  flex: 1;
+  max-width: 360px;
+}
+
+#nextBtn:hover { background: #a855f7; }
+
+@media (max-width: 600px) {
+  body { padding: 14px 10px 25px; }
+  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pref-card { min-height: 135px; }
+  .legend { gap: 6px; }
+  .legend-item { padding: 8px; font-size: 12px; }
+  .theme h2 { font-size: 17px; }
+}
+
+@media (min-width: 800px) {
+  .cards { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 </style>
 </head>
 
 <body>
-
 <div class="container">
 
-<h2 id="playerName"></h2>
+  <header class="top">
+    <h1 id="playerName">Préférences</h1>
+    <p class="subtitle">
+      Appuie sur chaque carte pour indiquer tes préférences.<br>
+      Chaque clic passe à l'état suivant.
+    </p>
+  </header>
 
-<div class="header-row">
-  <div>❌ Ce que je ne veux pas pour moi</div>
-  <div></div>
-  <div>💜 Ce que je veux pour moi</div>
-  <div>🔥 Ce que je veux pour l'autre</div>
-</div>
+  <div class="legend">
+    <div class="legend-item green">
+      <strong>🟢 Vert — 1 clic</strong>
+      Oui pour moi
+    </div>
+    <div class="legend-item red">
+      <strong>🔴 Rouge — 2 clics</strong>
+      Non pour moi
+    </div>
+    <div class="legend-item orange">
+      <strong>🟠 Orange — 3 clics</strong>
+      Non pour moi, oui pour l'autre
+    </div>
+    <div class="legend-item blue">
+      <strong>🔵 Bleu — 4 clics</strong>
+      Oui pour l'autre
+    </div>
+  </div>
 
-<div id="prefs"></div>
+  <main id="prefs"></main>
 
-<button onclick="next()">Valider</button>
+  <div class="actions">
+    <button class="action" id="resetBtn" type="button">
+      Tout effacer
+    </button>
+    <button class="action" id="nextBtn" type="button">
+      Valider et continuer →
+    </button>
+  </div>
 
 </div>
 
 <script>
+const setup = JSON.parse(localStorage.getItem('gameSetup')) || {};
 
-const setup = JSON.parse(localStorage.getItem('gameSetup')) || {}
+document.getElementById('playerName').textContent =
+  'Préférences de ' + (setup.joueur1 || 'Joueur 1');
 
-const playerName = setup.joueur1 || 'Joueur 1'
-
-document.getElementById('playerName').textContent = playerName  
-  
 const PREF_KEYS = [
-  'respiration','humiliation','salive','bodywriting','griffure','pince_teton','lame','shibari','gifle','fessee','objetimpact','camera','miroir','exhib',
-  'chaud_froid','sensoriel','ludique','mutuel','soft','hard','laissecollier','entrave','sextoy','boule'
-]
+  'respiration', 'humiliation', 'salive', 'bodywriting',
+  'griffure', 'pince_teton', 'lame', 'shibari', 'gifle',
+  'fessee', 'objetimpact', 'camera', 'miroir', 'exhib',
+  'chaud_froid', 'sensoriel', 'ludique', 'mutuel', 'soft',
+  'hard', 'laissecollier', 'entrave', 'sextoy', 'boule'
+];
 
-const LABELS = {
-  sensoriel: "Privation sensorielle : Bandage des yeux, momification",
-  shibari: "Shibari : Jeu avec les cordes",
-  entrave: "Entrave : Menotte, corde, etc...",
-  laissecollier: "Collier et laisse",
-  gifle: "Gifle au visage, seins, sexe",
-  fessee: "Fessée",
-  objetimpact: "Cravache, fouet, canne, etc...",
-  respiration: "Contrôle de la respiration",
-  humiliation: "Humiliation",
-  salive: "Crachat, salive",
-  bodywriting: "Bodywriting",
-  boule: "Baïllonement",
-  griffure: "Griffure, morsure, coup",
-  lame: "Couteau, roue, etc...",
-  pince_teton: "Pince téton, pince à linge",
-  chaud_froid: "Chaud / Froid : Glaçon, cire",
-  sextoy: "Sextoy : Gode, plug, crochet, womanizer",
-  exhib: "Exhibition",
-  camera: "Caméra, photo, téléphone",
-  miroir: "Devant le miroir",
-  ludique: "Ludique : Pile ou face, jeu, shifoumi",
-  mutuel: "Gage mutuel",
-  soft: "Soft : Douceur",
-  hard: "Hard : Tirage de cheveux, gorge profonde, sauvage"
-  
-  
-}
-
-const container = document.getElementById('prefs')
-
-PREF_KEYS.forEach(pref=>{
-  container.innerHTML += `
-    <div class="row">
-      <div class="left">
-        <input type="checkbox" value="${pref}" class="block">
-      </div>
-
-      <div class="label">${LABELS[pref]}</div>
-
-      <div class="self">
-        <input type="checkbox" value="${pref}" class="self">
-      </div>
-
-      <div class="other">
-        <input type="checkbox" value="${pref}" class="other">
-      </div>
-    </div>
-  `
-})
-
-function getChecked(className){
-  return [...document.querySelectorAll('.'+className+':checked')]
-    .map(e=>e.value)
-}
-
-function next(){
-
-  const data = {
-    envies_self: getChecked('self'),
-    envies_other: getChecked('other'),
-    envies_block: getChecked('block')
+const ITEMS = {
+  respiration: {
+    label: 'Contrôle de la respiration',
+    icon: '🌬️',
+    theme: 'Sensations et contrôle'
+  },
+  sensoriel: {
+    label: 'Privation sensorielle : yeux bandés, etc.',
+    icon: '🙈',
+    theme: 'Sensations et contrôle'
+  },
+  chaud_froid: {
+    label: 'Chaud / froid : glaçon, cire',
+    icon: '🧊',
+    theme: 'Sensations et contrôle'
+  },
+  shibari: {
+    label: 'Shibari : jeu avec les cordes',
+    icon: '🪢',
+    theme: 'Attaches et accessoires'
+  },
+  entrave: {
+    label: 'Entraves : menottes, cordes, etc.',
+    icon: '⛓️',
+    theme: 'Attaches et accessoires'
+  },
+  laissecollier: {
+    label: 'Collier et laisse',
+    icon: '🔗',
+    theme: 'Attaches et accessoires'
+  },
+  sextoy: {
+    label: 'Sextoys : accessoires intimes',
+    icon: '🎀',
+    theme: 'Attaches et accessoires'
+  },
+  gifle: {
+    label: 'Gifle au visage, seins ou sexe',
+    icon: '✋',
+    theme: 'Impact et intensité'
+  },
+  fessee: {
+    label: 'Fessée',
+    icon: '🖐️',
+    theme: 'Impact et intensité'
+  },
+  objetimpact: {
+    label: 'Cravache, fouet, canne, etc.',
+    icon: '〰️',
+    theme: 'Impact et intensité'
+  },
+  griffure: {
+    label: 'Griffure, morsure, coups',
+    icon: '🐾',
+    theme: 'Impact et intensité'
+  },
+  pince_teton: {
+    label: 'Pinces et sensations ciblées',
+    icon: '📎',
+    theme: 'Impact et intensité'
+  },
+  lame: {
+    label: 'Couteau, roue et jeux associés',
+    icon: '🗡️',
+    theme: 'Impact et intensité'
+  },
+  humiliation: {
+    label: 'Humiliation',
+    icon: '🎭',
+    theme: 'Jeux psychologiques'
+  },
+  salive: {
+    label: 'Crachat et salive',
+    icon: '💧',
+    theme: 'Jeux psychologiques'
+  },
+  bodywriting: {
+    label: 'Écriture sur le corps',
+    icon: '✍️',
+    theme: 'Jeux psychologiques'
+  },
+  exhib: {
+    label: 'Exhibition',
+    icon: '🎭',
+    theme: 'Jeux psychologiques'
+  },
+  camera: {
+    label: 'Caméra, photo, téléphone',
+    icon: '📷',
+    theme: 'Jeux psychologiques'
+  },
+  miroir: {
+    label: 'Devant le miroir',
+    icon: '🪞',
+    theme: 'Jeux psychologiques'
+  },
+  ludique: {
+    label: 'Jeux, défis, pile ou face',
+    icon: '🎲',
+    theme: 'Jeux et ambiance'
+  },
+  mutuel: {
+    label: 'Gage mutuel',
+    icon: '🤝',
+    theme: 'Jeux et ambiance'
+  },
+  soft: {
+    label: 'Soft : douceur',
+    icon: '🌸',
+    theme: 'Jeux et ambiance'
+  },
+  hard: {
+    label: 'Hard : intensité et jeux plus poussés',
+    icon: '🔥',
+    theme: 'Jeux et ambiance'
+  },
+  boule: {
+    label: 'Bâillonnement',
+    icon: '🔒',
+    theme: 'Jeux et ambiance'
   }
+};
 
-  localStorage.setItem('joueur1Prefs', JSON.stringify(data))
-  window.location.href = 'joueur2.html'
+const STATE_LABELS = {
+  0: 'Neutre · aucun choix',
+  1: '✓ Oui pour moi',
+  2: '✕ Non pour moi',
+  3: 'Non pour moi · Oui pour l’autre',
+  4: '✓ Oui pour l’autre'
+};
+
+const STATE_HINTS = {
+  0: 'Clique pour choisir',
+  1: 'Clique : non pour moi',
+  2: 'Clique : non pour moi, oui pour l’autre',
+  3: 'Clique : oui pour l’autre',
+  4: 'Clique : effacer le choix'
+};
+
+// État de chaque carte : 0 à 4
+const states = Object.fromEntries(PREF_KEYS.map(key => [key, 0]));
+
+const previous =
+  JSON.parse(localStorage.getItem('joueur1Prefs')) || {};
+
+// Permet de retrouver les choix si la page est revisitée.
+PREF_KEYS.forEach(key => {
+  const self = previous.envies_self || [];
+  const block = previous.envies_block || [];
+  const other = previous.envies_other || [];
+
+  if (block.includes(key) && other.includes(key)) {
+    states[key] = 3;
+  } else if (other.includes(key)) {
+    states[key] = 4;
+  } else if (block.includes(key)) {
+    states[key] = 2;
+  } else if (self.includes(key)) {
+    states[key] = 1;
+  }
+});
+
+const grouped = {};
+PREF_KEYS.forEach(key => {
+  const theme = ITEMS[key].theme;
+  if (!grouped[theme]) grouped[theme] = [];
+  grouped[theme].push(key);
+});
+
+const container = document.getElementById('prefs');
+
+Object.entries(grouped).forEach(([theme, keys]) => {
+  const section = document.createElement('section');
+  section.className = 'theme';
+
+  const heading = document.createElement('h2');
+  heading.textContent = theme;
+  section.appendChild(heading);
+
+  const cards = document.createElement('div');
+  cards.className = 'cards';
+
+  keys.forEach(key => {
+    const item = ITEMS[key];
+    const card = document.createElement('button');
+
+    card.type = 'button';
+    card.className = 'pref-card';
+    card.dataset.key = key;
+    card.dataset.state = String(states[key]);
+    card.setAttribute('aria-pressed', states[key] !== 0 ? 'true' : 'false');
+
+    const illustration = document.createElement('span');
+    illustration.className = 'illustration';
+    illustration.textContent = item.icon;
+    illustration.setAttribute('aria-hidden', 'true');
+
+    const name = document.createElement('span');
+    name.className = 'name';
+    name.textContent = item.label;
+
+    const state = document.createElement('span');
+    state.className = 'state';
+    state.textContent = STATE_LABELS[states[key]];
+
+    card.append(illustration, name, state);
+
+    card.addEventListener('click', () => {
+      states[key] = (states[key] + 1) % 5;
+      card.dataset.state = String(states[key]);
+      card.setAttribute(
+        'aria-pressed',
+        states[key] !== 0 ? 'true' : 'false'
+      );
+
+      state.textContent = STATE_LABELS[states[key]];
+      card.title = STATE_HINTS[states[key]];
+    });
+
+    card.title = STATE_HINTS[states[key]];
+    cards.appendChild(card);
+  });
+
+  section.appendChild(cards);
+  container.appendChild(section);
+});
+
+function getPreferences() {
+  const envies_self = [];
+  const envies_block = [];
+  const envies_other = [];
+
+  PREF_KEYS.forEach(key => {
+    const state = states[key];
+
+    if (state === 1) {
+      envies_self.push(key);
+    } else if (state === 2) {
+      envies_block.push(key);
+    } else if (state === 3) {
+      envies_block.push(key);
+      envies_other.push(key);
+    } else if (state === 4) {
+      envies_other.push(key);
+    }
+  });
+
+  return { envies_self, envies_block, envies_other };
 }
 
-</script>
+document.getElementById('resetBtn').addEventListener('click', () => {
+  PREF_KEYS.forEach(key => states[key] = 0);
 
+  document.querySelectorAll('.pref-card').forEach(card => {
+    card.dataset.state = '0';
+    card.setAttribute('aria-pressed', 'false');
+    card.querySelector('.state').textContent = STATE_LABELS[0];
+    card.title = STATE_HINTS[0];
+  });
+});
+
+document.getElementById('nextBtn').addEventListener('click', () => {
+  localStorage.setItem('joueur1Prefs', JSON.stringify(getPreferences()));
+  window.location.href = 'joueur2.html';
+});
+</script>
 </body>
 </html>
