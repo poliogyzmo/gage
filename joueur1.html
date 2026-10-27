@@ -104,12 +104,12 @@ h1 {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 145px;
+  min-height: 100px;
   padding: 14px 9px;
-  border: 2px solid #363841;
+  border: 2px solid #D8C5F5;
   border-radius: 15px;
-  background: var(--card);
-  color: white;
+  background: #F1E8FF;
+  color: #000000;
   cursor: pointer;
   text-align: center;
   transition: border-color .15s, background .15s, transform .15s;
@@ -117,7 +117,7 @@ h1 {
 }
 
 .pref-card:hover {
-  background: #292b33;
+  background: #E8D9FF;
   transform: translateY(-2px);
 }
 
@@ -133,6 +133,7 @@ h1 {
 }
 
 .pref-card .name {
+  color: #000000;
   font-size: 13px;
   line-height: 1.35;
   font-weight: bold;
@@ -142,7 +143,7 @@ h1 {
   font-size: 11px;
   line-height: 1.3;
   margin-top: 8px;
-  color: var(--muted);
+  color: #333333;
 }
 
 /* État 1 : oui pour moi */
@@ -282,137 +283,137 @@ const PREF_KEYS = [
 const ITEMS = {
   respiration: {
     label: 'Contrôle de la respiration',
-    icon: '🌬️',
+    image: "https://github.com/poliogyzmo/asset/blob/main/etranglement.png",
     theme: 'Soumission'
   },
   sensoriel: {
     label: 'Privation sensorielle : yeux bandés, etc.',
-    icon: '🙈',
+    image: "https://github.com/poliogyzmo/asset/blob/main/sens.png",
     theme: 'Bondage'
   },
   chaud_froid: {
     label: 'Chaud / froid : glaçon, cire',
-    icon: '🧊',
+    image: "https://github.com/poliogyzmo/asset/blob/main/bougie.png",
     theme: 'Masochisme'
   },
   shibari: {
     label: 'Shibari : jeu avec les cordes',
-    icon: '🪢',
+    image: "https://github.com/poliogyzmo/asset/blob/main/shibari.png",
     theme: 'Bondage'
   },
   entrave: {
     label: 'Entraves : menottes, cordes, etc.',
-    icon: '⛓️',
+    image: "https://github.com/poliogyzmo/asset/blob/main/entraves.png",
     theme: 'Bondage'
   },
   laissecollier: {
     label: 'Collier et laisse',
-    icon: '🔗',
+    image: "https://github.com/poliogyzmo/asset/blob/main/collier.png",
     theme: 'Bondage'
   },
   plug: {
     label: 'Plug',
-    icon: '🎀',
+    image: "https://github.com/poliogyzmo/asset/blob/main/plug.png",
     theme: 'Sextoys'
   },
     crochet: {
     label: 'Crochet anal',
-    icon: '🎀',
+    image: "https://github.com/poliogyzmo/asset/blob/main/crochet.png",
     theme: 'Sextoys'
   },
     gode: {
     label: 'Gode, vibromasseur',
-    icon: '🎀',
+    image: "https://github.com/poliogyzmo/asset/blob/main/gode.png",
     theme: 'Sextoys'
   },
     double_gode: {
     label: 'Double gode',
-    icon: '🎀',
+    image: "https://github.com/poliogyzmo/asset/blob/main/double.png",
     theme: 'Sextoys'
   },
     connecte: {
     label: 'Sextoy connecté',
-    icon: '🎀',
+    image: "https://github.com/poliogyzmo/asset/blob/main/vibration.png",
     theme: 'Sextoys'
   },
     womanizer: {
     label: 'Womanizer',
-    icon: '🎀',
+    image: "https://github.com/poliogyzmo/asset/blob/main/womanizer.png",
     theme: 'Sextoys'
   },
   gifle: {
     label: 'Gifle au visage, seins ou sexe',
-    icon: '✋',
+    image: "https://github.com/poliogyzmo/asset/blob/main/gifler.png",
     theme: 'Discipline'
   },
   fessee: {
     label: 'Fessée',
-    icon: '🖐️',
+    image: "https://github.com/poliogyzmo/asset/blob/main/fessee.png",
     theme: 'Discipline'
   },
   objetimpact: {
     label: 'Cravache, fouet, canne, etc.',
-    icon: '〰️',
+    image: "https://github.com/poliogyzmo/asset/blob/main/fouet.png",
     theme: 'Discipline'
   },
   griffure: {
     label: 'Griffure, morsure, coups',
-    icon: '🐾',
+    image: "https://github.com/poliogyzmo/asset/blob/main/griffure.png",
     theme: 'Masochisme'
   },
   pince_teton: {
     label: 'Pinces tétons',
-    icon: '📎',
+    image: "https://github.com/poliogyzmo/asset/blob/main/pinces.png",
     theme: 'Masochisme'
   },
   lame: {
     label: 'Couteau, roue, etc',
-    icon: '🗡️',
+    image: "https://github.com/poliogyzmo/asset/blob/main/couteau.png",
     theme: 'Masochisme'
   },
   humiliation: {
     label: 'Humiliation',
-    icon: '🎭',
+    image: "https://github.com/poliogyzmo/asset/blob/main/humiliation.png",
     theme: 'Soumission'
   },
   salive: {
     label: 'Crachat et salive',
-    icon: '💧',
+    image: "https://github.com/poliogyzmo/asset/blob/main/cracher.png",
     theme: 'Soumission'
   },
   bodywriting: {
     label: 'Écriture sur le corps',
-    icon: '✍️',
+    image: "https://github.com/poliogyzmo/asset/blob/main/ecrire.png",
     theme: 'Soumission'
   },
   exhib: {
     label: 'Exhibition',
-    icon: '🎭',
+    image: "https://github.com/poliogyzmo/asset/blob/main/couple.png",
     theme: 'Autres'
   },
   camera: {
     label: 'Caméra, photo, téléphone',
-    icon: '📷',
+    image: "https://github.com/poliogyzmo/asset/blob/main/camera.png",
     theme: 'Autres'
   },
   miroir: {
     label: 'Devant le miroir',
-    icon: '🪞',
+    image: "https://github.com/poliogyzmo/asset/blob/main/miroir.png",
     theme: 'Autres'
   },
   ludique: {
     label: 'Jeux, défis, pile ou face',
-    icon: '🎲',
+    image: "https://github.com/poliogyzmo/asset/blob/main/jeu.png",
     theme: 'Autres'
   },
   mutuel: {
     label: 'Gage mutuel',
-    icon: '🤝',
+    image: "https://github.com/poliogyzmo/asset/blob/main/mutuel.png",
     theme: 'Autres'
   },
   boule: {
     label: 'Boule de soumission, bâillonnement',
-    icon: '🔒',
+    image: "https://github.com/poliogyzmo/asset/blob/main/boule.png",
     theme: 'Soumission'
   }
 };
