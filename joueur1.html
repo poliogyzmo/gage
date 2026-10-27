@@ -271,10 +271,12 @@ document.getElementById('playerName').textContent =
   'Préférences de ' + (setup.joueur1 || 'Joueur 1');
 
 const PREF_KEYS = [
-  'respiration', 'humiliation', 'salive', 'bodywriting',
-  'griffure', 'pince_teton', 'lame', 'shibari', 'gifle',
-  'fessee', 'objetimpact', 'camera', 'miroir', 'exhib',
-  'chaud_froid', 'sensoriel', 'ludique', 'mutuel', 'laissecollier', 'entrave', 'plug','crochet','gode','double_gode','connecte','womanizer', 'boule'
+  'entrave','laissecollier','shibari','sensoriel',
+  'gifle','fessee','objetimpact',
+  'respiration', 'humiliation', 'boule', 'salive', 'bodywriting',
+  'griffure', 'pince_teton', 'lame','chaud_froid',
+  'plug','crochet','gode','double_gode','connecte','womanizer',
+  'camera', 'miroir', 'exhib','ludique', 'mutuel'
 ];
 
 const ITEMS = {
@@ -359,12 +361,12 @@ const ITEMS = {
     theme: 'Masochisme'
   },
   pince_teton: {
-    label: 'Pinces et sensations ciblées',
+    label: 'Pinces tétons',
     icon: '📎',
     theme: 'Masochisme'
   },
   lame: {
-    label: 'Couteau, roue et jeux associés',
+    label: 'Couteau, roue, etc',
     icon: '🗡️',
     theme: 'Masochisme'
   },
@@ -409,7 +411,7 @@ const ITEMS = {
     theme: 'Autres'
   },
   boule: {
-    label: 'Bâillonnement',
+    label: 'Boule de soumission, bâillonnement',
     icon: '🔒',
     theme: 'Soumission'
   }
