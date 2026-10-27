@@ -99,7 +99,7 @@ h1 {
   align-items: center;
   justify-content: center;
   min-width: 0;
-  min-height: 145px;
+  min-height: 100px;
   padding: 14px 9px;
   border: 2px solid #D8C5F5;
   border-radius: 15px;
@@ -143,27 +143,33 @@ h1 {
   margin-top: 8px;
 }
 
-/* La carte reste violet clair ; seule la bordure change */
+/* État 1 : oui pour moi */
 .pref-card[data-state="1"] {
   border-color: var(--green);
+  background: #143020;
 }
+.pref-card[data-state="1"] .state { color: var(--green); }
 
+/* État 2 : non pour moi */
 .pref-card[data-state="2"] {
   border-color: var(--red);
+  background: #351919;
 }
+.pref-card[data-state="2"] .state { color: var(--red); }
 
+/* État 3 : non pour moi, oui pour l'autre */
 .pref-card[data-state="3"] {
   border-color: var(--orange);
+  background: #382416;
 }
+.pref-card[data-state="3"] .state { color: var(--orange); }
 
+/* État 4 : oui pour l'autre */
 .pref-card[data-state="4"] {
   border-color: var(--blue);
+  background: #123039;
 }
-
-.pref-card .name,
-.pref-card .state {
-  color: #000;
-}
+.pref-card[data-state="4"] .state { color: var(--blue); }
 
 .actions {
   position: sticky;
