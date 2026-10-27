@@ -94,7 +94,7 @@ h1 {
 
 .cards {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -209,17 +209,25 @@ button.action {
 
 #nextBtn:hover { background: #a855f7; }
 
-@media (max-width: 600px) {
-  body { padding: 14px 10px 25px; }
-  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .pref-card { min-height: 135px; }
-  .legend { gap: 6px; }
-  .legend-item { padding: 8px; font-size: 12px; }
-  .theme h2 { font-size: 17px; }
+/* Écrans intermédiaires : 3 cartes */
+@media (min-width: 600px) {
+  .cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
-@media (min-width: 800px) {
-  .cards { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+/* Ordinateurs : 4 cartes */
+@media (min-width: 900px) {
+  .cards {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Grands écrans : 6 cartes */
+@media (min-width: 1200px) {
+  .cards {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
 }
 </style>
 </head>
