@@ -181,42 +181,51 @@ html, body {
   </select>
 
   <!-- ⭐ NOUVEAU : PRATIQUE -->
-  <select id="pratique">
-
+<select id="bondage">
     <option value="">Pratique</option>
     <option value="entrave">Entrave</option>
     <option value="laissecollier">Laisse / Collier</option>
     <option value="shibari">Shibari</option>
     <option value="sensoriel">Privation sensoriel</option>
+</select>
+
+<select id="discipline">
     <option value="gifle">Gifle</option>
     <option value="fessee">Fessée</option>
     <option value="objetimpact">Fouet/cravache/etc</option>
+</select>
+
+<select id="soumission">
     <option value="respiration">Contrôle de la respiration</option>
     <option value="humiliation">Humiliation</option>
     <option value="boule">Boule de soumission, Bâillon</option>
     <option value="salive">Crachet et salive</option>
     <option value="bodywriting">Body writing</option>
+</select>
+
+<select id="masochisme">
     <option value="griffure">Griffure/morsure</option>
     <option value="pince_teton">Pince téton</option>
     <option value="lame">Couteau/roue/etc</option>
     <option value="chaud_froid">Chaud/Froid</option>
+</select>
+
+<select id="sextoy">
     <option value="plug">Plug</option>
     <option value="crochet">Crochet</option>
     <option value="gode">Gode, vibro</option>
     <option value="double_gode">Double gode</option>
     <option value="connecte">Sextoy connecté</option>
     <option value="womanizer">Womanizer</option>
+</select>
+
+<select id="autre">
     <option value="camera">Caméra/photo/téléphone</option>
     <option value="miroir">Miroir</option>
     <option value="exhib">Exhibition</option>
     <option value="ludique">Ludique</option>
     <option value="mutuel">Mutuel</option>
-
-    
-    
-    
-
-  </select>
+</select>
 
   <button id="btnTirer">
     🎲 Tirer un gage
@@ -319,12 +328,25 @@ async function tirerGage() {
     lieu:
       document.getElementById('lieu').value,
 
-    type_special:
+    anal:
       document.getElementById('type_special').value,
 
     /* ⭐ NOUVEAU */
-    pratique:
-      document.getElementById('pratique').value
+    bondage:
+      document.getElementById('bondage').value,
+    discipline:
+      document.getElementById('discipline').value,
+      soumission:
+      document.getElementById('soumission').value,
+      masochisme:
+      document.getElementById('masochisme').value,
+      sextoy:
+      document.getElementById('sextoy').value,
+      autre:
+      document.getElementById('autre').value
+
+
+    
 
   }
 
@@ -422,16 +444,56 @@ async function tirerGage() {
      ⭐ FILTRE PRATIQUE
   ================================= */
 
-  if (filtres.pratique) {
+  if (filtres.bondage) {
 
     query =
       query.eq(
-        filtres.pratique,
+        filtres.bondage,
         true
       )
 
   }
+ if (filtres.discipline) {
 
+    query =
+      query.eq(
+        filtres.discipline,
+        true
+      )
+
+  } if (filtres.soumission) {
+
+    query =
+      query.eq(
+        filtres.soumission,
+        true
+      )
+
+  } if (filtres.masochisme) {
+
+    query =
+      query.eq(
+        filtres.masochisme,
+        true
+      )
+
+  } if (filtres.sextoy) {
+
+    query =
+      query.eq(
+        filtres.sextoy,
+        true
+      )
+
+  } if (filtres.autre) {
+
+    query =
+      query.eq(
+        filtres.autre,
+        true
+      )
+
+  }
 
   /* ================================
      EXÉCUTION
